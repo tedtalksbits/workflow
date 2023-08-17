@@ -18,7 +18,6 @@ export const AuthContext = React.createContext<AuthContextType>({
 });
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   function getLocalUser() {
-    console.log('getLocalUser');
     const user = localStorage.getItem('user');
     if (user) {
       return JSON.parse(user);
@@ -30,7 +29,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   );
 
   useEffect(() => {
-    console.log('useEffect');
     onAuthChange((user) => {
       if (user) {
         const { displayName, email, emailVerified, photoURL, uid } = user;

@@ -1,48 +1,39 @@
-import { db, signOutWithGoogle } from '@/firebase';
-import { collection, onSnapshot } from 'firebase/firestore';
 import React from 'react';
-import { useEffect } from 'react';
-import { EditForm } from './EditForm';
 import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/button';
-type Project = {
-  name: string;
-  description: string;
-  id: string;
-};
+import { ProjectsList } from './Projects/ProjectsList';
+import { Project } from '@/types/projects';
+import { DashboardHeader } from './DashboardHeader';
+import { Task } from '@/types/task';
+import { TasksList } from './Tasks/TasksList';
+
 export const Dashboard = () => {
   const [projects, setProjects] = React.useState<Project[]>([]);
+  const [selectedProjectId, setSelectedProjectId] = React.useState<string>('');
+  const [tasks, setTasks] = React.useState<Task[]>([]);
   const { user } = useAuth();
-  useEffect(() => {
-    if (!user) {
-      throw new Error('User not found');
-    }
-    const getData = async () => {
-      const projectsCol = collection(db, 'projects', user.uid, 'project');
 
-      onSnapshot(projectsCol, (snapshot) => {
-        const projectsList = snapshot.docs.map((doc) => ({
-          ...doc.data(),
-          id: doc.id,
-        })) as Project[];
-        console.log(projectsList);
-        setProjects(projectsList);
-      });
-    };
-    getData();
-  }, []);
-
+  if (!user) return null;
   return (
-    <div>
-      <h1>Dashboard</h1>
-      <ul>
-        {projects.map((project) => (
-          <li key={project.id}>{project.name}</li>
-        ))}
-      </ul>
-      {/* <AddForm /> */}
-      <EditForm />
-      <Button onClick={async () => signOutWithGoogle()}>Logout</Button>
+    <div className='flex h-screen'>
+      <div className='sidebar h-full border-r w-[25%] max-w-[300px] bg-accent'>
+        <ProjectsList
+          setProjects={setProjects}
+          projects={projects}
+          onSelectProjectId={setSelectedProjectId}
+          selectedProjectId={selectedProjectId}
+        />
+      </div>
+      <div className='content flex-1'>
+        <DashboardHeader />
+        <div className='p-4'>
+          <TasksList
+            tasks={tasks}
+            setTasks={setTasks}
+            selectedProjectId={selectedProjectId}
+            key={selectedProjectId}
+          />
+        </div>
+      </div>
     </div>
   );
 };

@@ -45,7 +45,6 @@ export function ThemeProvider({
       root.classList.add(systemTheme);
       return;
     }
-    console.log('adding theme');
 
     root.classList.add(theme);
   }, [theme]);
@@ -53,7 +52,6 @@ export function ThemeProvider({
   const value = {
     theme,
     setTheme: (theme: ThemeValue) => {
-      console.log('setting theme');
       localStorage.setItem(storageKey, theme);
       setTheme(theme);
     },
