@@ -1,9 +1,4 @@
-import {
-  DotsHorizontalIcon,
-  DotsVerticalIcon,
-  FileTextIcon,
-  PlusIcon,
-} from '@radix-ui/react-icons';
+import { FileTextIcon } from '@radix-ui/react-icons';
 import { Input } from '@/components/ui/input';
 import { Project } from '@/types/projects';
 import { NewProjectDialog } from './NewProject';
@@ -11,7 +6,7 @@ import { useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '@/firebase';
-import { MutateProjectDialog } from './MutateProject';
+import { ProjectUpdate } from './ProjectUpdate';
 type NavbarProps = {
   projects: Project[];
   onSelectProjectId: (projectId: string) => void;
@@ -80,7 +75,7 @@ export const ProjectsList = ({
               {project.name}
             </li>
             <div className='pr-4 py-2'>
-              <MutateProjectDialog project={project} />
+              <ProjectUpdate project={project} />
             </div>
           </div>
         ))}

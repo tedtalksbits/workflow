@@ -6,13 +6,13 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { db } from '@/firebase';
 import { useAuth } from '@/hooks/useAuth';
 import { Task } from '@/types/task';
 import { TableIcon } from '@radix-ui/react-icons';
-import { collection, onSnapshot } from 'firebase/firestore';
 import { useEffect } from 'react';
 import { NewTaskDialog } from './NewTask';
+import { TaskUpdate } from './TaskUpdate';
+import { GetTasksProps, taskApi } from './api/task';
 
 type TaskTableProps = {
   tasks: Task[];
@@ -31,20 +31,15 @@ export const TasksList = ({
     if (!user) throw new Error('User is not defined');
     if (!selectedProjectId) return;
     console.log(selectedProjectId);
-    const getData = async () => {
-      const tasksCol = collection(db, 'tasks', user.uid, 'task');
-      onSnapshot(tasksCol, (snapshot) => {
-        const tasksData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Task[];
-        const filteredTasks = tasksData.filter(
-          (task) => task.projectId === selectedProjectId
-        );
-        setTasks(filteredTasks);
-      });
+    const getTasksObj: GetTasksProps = {
+      projectId: selectedProjectId,
+      user,
+      onError: () => console.log('error'),
+      onSuccess(task) {
+        setTasks(task);
+      },
     };
-    getData();
+    taskApi.getTasks(getTasksObj);
   }, [setTasks, selectedProjectId, user]);
   return (
     <div>
@@ -66,7 +61,7 @@ export const TasksList = ({
               'Priority',
               'Assignee',
               'Created',
-              'Action',
+              '',
             ].map((header) => (
               <TableCell key={header} className='font-medium'>
                 {header}
@@ -93,8 +88,8 @@ export const TasksList = ({
               <TableCell>{task.priority}</TableCell>
               <TableCell>{task.assignee}</TableCell>
               <TableCell>{task.createdAt}</TableCell>
-              <TableCell>
-                <button className='btn btn-primary'>Edit</button>
+              <TableCell className='cursor-pointer'>
+                <TaskUpdate task={task} key={task.id} />
               </TableCell>
             </TableRow>
           ))}
