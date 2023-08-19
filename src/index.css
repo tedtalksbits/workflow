@@ -274,4 +274,16 @@
   select option {
     @apply bg-background text-foreground text-sm rounded-lg focus:border-primary/30 block w-full p-4  placeholder-foreground/70;
   }
+
+  /* form */
+  form {
+    @apply flex flex-col gap-4 mt-4;
+  }
+  form .form-group {
+    @apply flex flex-col gap-4;
+  }
+
+  form .form-footer {
+    @apply flex flex-col gap-4 mt-10;
+  }
 }

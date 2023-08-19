@@ -8,17 +8,19 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { db } from '@/firebase';
 import { useAuth } from '@/hooks/useAuth';
 import { Project } from '@/types/projects';
 import { PlusIcon } from '@radix-ui/react-icons';
-import { addDoc, collection } from 'firebase/firestore';
 import React from 'react';
+import { AddProjectProps, projectApi } from './api/project';
+import { useToast } from '@/components/ui/use-toast';
 
 export const NewProjectDialog = () => {
   const { user } = useAuth();
   const [open, setOpen] = React.useState(false);
+  const { toast } = useToast();
   const handleAddProject = async (e: React.FormEvent<HTMLFormElement>) => {
     if (!user) return console.log('no user');
     e.preventDefault();
@@ -32,13 +34,20 @@ export const NewProjectDialog = () => {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
-
-    try {
-      await addDoc(collection(db, 'projects', user.uid, 'project'), project);
-      setOpen(false);
-    } catch (error) {
-      console.log(error);
-    }
+    const newProjectRequest: AddProjectProps = {
+      project,
+      user,
+      onError: () => console.log('error'),
+      onSuccess: () => {
+        setOpen(false);
+        toast({
+          title: 'Project created',
+          description: 'Your project has been created successfully',
+          variant: 'success',
+        });
+      },
+    };
+    projectApi.addProject(newProjectRequest);
   };
   return (
     <div>
@@ -57,15 +66,29 @@ export const NewProjectDialog = () => {
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleAddProject} className='flex flex-col gap-3'>
-            <Input
-              type='text'
-              name='name'
-              placeholder='name'
-              autoFocus
-              required
-            />
-            <Textarea name='description' placeholder='description' rows={5} />
-            <Button type='submit'>Add Project</Button>
+            <div className='form-group'>
+              <Label htmlFor='newProjectName'>Name</Label>
+              <Input
+                id='newProjectName'
+                type='text'
+                name='name'
+                placeholder='name'
+                autoFocus
+                required
+              />
+            </div>
+            <div className='form-group'>
+              <Label htmlFor='newProjectDescription'>Description</Label>
+              <Textarea
+                name='description'
+                placeholder='description'
+                rows={5}
+                id='newProjectDescription'
+              />
+            </div>
+            <div className='form-footer'>
+              <Button type='submit'>Add Project</Button>
+            </div>
           </form>
         </DialogContent>
       </Dialog>

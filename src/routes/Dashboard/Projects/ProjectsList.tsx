@@ -4,9 +4,8 @@ import { Project } from '@/types/projects';
 import { NewProjectDialog } from './NewProject';
 import { useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { collection, onSnapshot } from 'firebase/firestore';
-import { db } from '@/firebase';
 import { ProjectUpdate } from './ProjectUpdate';
+import { GetProjectsProps, projectApi } from './api/project';
 type NavbarProps = {
   projects: Project[];
   onSelectProjectId: (projectId: string) => void;
@@ -25,24 +24,14 @@ export const ProjectsList = ({
     if (!user) {
       throw new Error('User not found');
     }
-    const getData = async () => {
-      const projectsCol = collection(db, 'projects', user.uid, 'project');
-
-      onSnapshot(projectsCol, (snapshot) => {
-        const projectsList = snapshot.docs.map((doc) => ({
-          ...doc.data(),
-          id: doc.id,
-        })) as Project[];
-        const sortedProjects = projectsList.sort((a, b) =>
-          new Date(a.createdAt).getTime() > new Date(b.createdAt).getTime()
-            ? -1
-            : 1
-        );
-        console.log('sorted', sortedProjects);
-        setProjects(sortedProjects);
-      });
+    const getProjectsRequest: GetProjectsProps = {
+      user,
+      onError: () => console.log('error'),
+      onSuccess: (projects) => {
+        setProjects(projects);
+      },
     };
-    getData();
+    projectApi.getProjects(getProjectsRequest);
   }, [user, setProjects]);
   return (
     <div className='projects-container'>

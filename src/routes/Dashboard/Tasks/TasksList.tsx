@@ -7,13 +7,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useAuth } from '@/hooks/useAuth';
-import {
-  Task,
-  TaskPriority,
-  TaskStatus,
-  priorityColors,
-  statusColors,
-} from '@/types/task';
+import { Task, TaskStatus, priorityColors, statusColors } from '@/types/task';
 import { TableIcon } from '@radix-ui/react-icons';
 import { useEffect } from 'react';
 import { NewTaskDialog } from './NewTask';

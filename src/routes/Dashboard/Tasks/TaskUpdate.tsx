@@ -17,7 +17,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { ArrowRightIcon } from '@radix-ui/react-icons';
 import { useAuth } from '@/hooks/useAuth';
 import { useState } from 'react';
-import { Task, priorityColors } from '@/types/task';
+import { Task, priorityColors, statusColors } from '@/types/task';
 import {
   Sheet,
   SheetContent,
@@ -46,13 +46,12 @@ export const TaskUpdate = ({ task }: { task: Task }) => {
   const handleUpdateTask = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const title = formData.get('title') as string;
-    const description = formData.get('description') as string;
+    const data = Object.fromEntries(formData.entries());
+
     if (!user) return console.log('no user');
 
     const update: Partial<Task> = {
-      title,
-      description,
+      ...data,
       updatedAt: new Date().toISOString(),
     };
     const taskUpdate = {
@@ -126,56 +125,106 @@ export const TaskUpdate = ({ task }: { task: Task }) => {
             </TabsList>
             <TabsContent value='update' className='my-4'>
               <form onSubmit={handleUpdateTask} className='flex flex-col gap-3'>
-                <Label htmlFor={task.id + 'title'}>Title</Label>
-                <Input
-                  type='text'
-                  name='title'
-                  placeholder='title'
-                  id={task.id + 'title'}
-                  autoFocus
-                  required
-                  defaultValue={task.title}
-                />
-                <Label htmlFor={task.id + 'description'}>Description</Label>
-                <Textarea
-                  name='description'
-                  placeholder='description'
-                  rows={5}
-                  id={task.id + 'description'}
-                  defaultValue={task.description}
-                />
-                <Label htmlFor={task.id + 'priority'}>Priority</Label>
-                <Select name='priority' defaultValue={task.priority}>
-                  <SelectTrigger>
-                    <SelectValue>
-                      <Indicator
-                        className={`${
-                          task.priority === 'low'
-                            ? priorityColors.low
-                            : task.priority === 'medium'
-                            ? priorityColors.medium
-                            : priorityColors.high
-                        }`}
+                <div className='form-group'>
+                  <Label htmlFor={task.id + 'title'}>Title</Label>
+                  <Input
+                    type='text'
+                    name='title'
+                    placeholder='title'
+                    id={task.id + 'title'}
+                    autoFocus
+                    required
+                    defaultValue={task.title}
+                  />
+                </div>
+                <div className='form-group'>
+                  <Label htmlFor={task.id + 'description'}>Description</Label>
+                  <Textarea
+                    name='description'
+                    placeholder='description'
+                    rows={5}
+                    id={task.id + 'description'}
+                    defaultValue={task.description}
+                  />
+                </div>
+                <div className='form-group'>
+                  <Label htmlFor={task.id + 'status'}>Status</Label>
+                  <Select name='status' defaultValue={task.status}>
+                    <SelectTrigger>
+                      <SelectValue
+                        placeholder={
+                          <>
+                            <Indicator
+                              className={`${
+                                task.status === 'todo'
+                                  ? statusColors.todo
+                                  : task.status === 'inProgress'
+                                  ? statusColors.inProgress
+                                  : `${statusColors.done}`
+                              }`}
+                            />
+                            {task.status}
+                          </>
+                        }
                       />
-                      {task.priority}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent id={task.id + 'priority'}>
-                    <SelectItem value='low' defaultValue={task.priority}>
-                      <Indicator className={priorityColors.low} />
-                      Low
-                    </SelectItem>
-                    <SelectItem defaultValue={task.priority} value='medium'>
-                      <Indicator className={priorityColors.medium} />
-                      Medium
-                    </SelectItem>
-                    <SelectItem defaultValue={task.priority} value='high'>
-                      <Indicator className={priorityColors.high} />
-                      High
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button type='submit'>Update</Button>
+                    </SelectTrigger>
+                    <SelectContent id={task.id + 'status'}>
+                      <SelectItem value='todo'>
+                        <Indicator className={statusColors.todo} />
+                        Todo
+                      </SelectItem>
+                      <SelectItem value='inProgress'>
+                        <Indicator className={statusColors.inProgress} />
+                        In Progress
+                      </SelectItem>
+                      <SelectItem value='done'>
+                        <Indicator className={statusColors.done} />
+                        Done
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className='form-group'>
+                  <Label htmlFor={task.id + 'priority'}>Priority</Label>
+                  <Select name='priority' defaultValue={task.priority}>
+                    <SelectTrigger>
+                      <SelectValue
+                        placeholder={
+                          <>
+                            {' '}
+                            <Indicator
+                              className={`${
+                                task.priority === 'low'
+                                  ? priorityColors.low
+                                  : task.priority === 'medium'
+                                  ? priorityColors.medium
+                                  : priorityColors.high
+                              }`}
+                            />
+                            {task.priority}
+                          </>
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent id={task.id + 'priority'}>
+                      <SelectItem value='low' defaultValue={task.priority}>
+                        <Indicator className={priorityColors.low} />
+                        Low
+                      </SelectItem>
+                      <SelectItem defaultValue={task.priority} value='medium'>
+                        <Indicator className={priorityColors.medium} />
+                        Medium
+                      </SelectItem>
+                      <SelectItem defaultValue={task.priority} value='high'>
+                        <Indicator className={priorityColors.high} />
+                        High
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className='form-footer'>
+                  <Button type='submit'>Update</Button>
+                </div>
               </form>
               <Separator className='mt-[100%]' />
               <h2 className='font-bold my-2'>Danger Zone</h2>

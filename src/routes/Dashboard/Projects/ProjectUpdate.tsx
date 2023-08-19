@@ -23,42 +23,62 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { Project } from '@/types/projects';
 import { GearIcon } from '@radix-ui/react-icons';
-import { deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import { db } from '@/firebase';
 import { useAuth } from '@/hooks/useAuth';
 import { useState } from 'react';
 import { Zone } from '@/components/zone/Zone';
+import { Label } from '@/components/ui/label';
+import {
+  DeleteProjectProps,
+  UpdateProjectProps,
+  projectApi,
+} from './api/project';
+import { useToast } from '@/components/ui/use-toast';
 export const ProjectUpdate = ({ project }: { project: Project }) => {
   const [open, setOpen] = useState(false);
   const { user } = useAuth();
+  const { toast } = useToast();
   const handleUpdateProject = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const name = formData.get('name') as string;
     const description = formData.get('description') as string;
     if (!user) return console.log('no user');
-    const projectUpdate: Partial<Project> = {
+    const update: Partial<Project> = {
       name,
       description,
     };
-    // update project
-    try {
-      const projectRef = doc(db, 'projects', user.uid, 'project', project.id);
-      await updateDoc(projectRef, projectUpdate);
-      setOpen(false);
-    } catch (error) {
-      console.log(error);
-    }
+    const updateRequest: UpdateProjectProps = {
+      id: project.id,
+      update,
+      user,
+      onError: () => console.log('error'),
+      onSuccess: () => {
+        setOpen(false);
+        toast({
+          title: 'Project updated',
+          description: 'Your project has been updated successfully',
+          variant: 'success',
+        });
+      },
+    };
+    projectApi.updateProject(updateRequest);
   };
   const handleDeleteProject = async () => {
     if (!user) return console.log('no user');
-    try {
-      const projectRef = doc(db, 'projects', user.uid, 'project', project.id);
-      await deleteDoc(projectRef);
-      setOpen(false);
-    } catch (error) {
-      console.log(error);
-    }
+    const deleteRequest: DeleteProjectProps = {
+      id: project.id,
+      user,
+      onError: () => console.log('error'),
+      onSuccess: () => {
+        setOpen(false);
+        toast({
+          title: 'Project deleted',
+          description: 'Your project has been deleted successfully',
+          variant: 'success',
+        });
+      },
+    };
+    projectApi.deleteProject(deleteRequest);
   };
   return (
     <div>
@@ -83,21 +103,30 @@ export const ProjectUpdate = ({ project }: { project: Project }) => {
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleUpdateProject} className='flex flex-col gap-3'>
-            <Input
-              type='text'
-              name='name'
-              placeholder='name'
-              autoFocus
-              required
-              defaultValue={project.name}
-            />
-            <Textarea
-              name='description'
-              placeholder='description'
-              rows={5}
-              defaultValue={project.description}
-            />
-            <Button type='submit'>Update</Button>
+            <div className='form-group'>
+              <Label htmlFor='name'>Name</Label>
+              <Input
+                type='text'
+                name='name'
+                placeholder='name'
+                id='name'
+                autoFocus
+                required
+                defaultValue={project.name}
+              />
+            </div>
+            <div className='form-group'>
+              <Label htmlFor='description'>Description</Label>
+              <Textarea
+                name='description'
+                placeholder='description'
+                rows={5}
+                defaultValue={project.description}
+              />
+            </div>
+            <div className='form-footer'>
+              <Button type='submit'>Update</Button>
+            </div>
           </form>
           <Separator className='my-4' />
           <h2>Danger Zone</h2>

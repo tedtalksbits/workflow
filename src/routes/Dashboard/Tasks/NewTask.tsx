@@ -17,10 +17,12 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/useAuth';
-import { Task } from '@/types/task';
+import { Task, priorityColors } from '@/types/task';
 import { PlusIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
 import { AddTaskProps, taskApi } from './api/task';
+import { Label } from '@/components/ui/label';
+import Indicator from '@/components/ui/indicator';
 export const NewTaskDialog = ({ projectId }: { projectId: string }) => {
   const [open, setOpen] = useState(false);
   const { user } = useAuth();
@@ -76,27 +78,58 @@ export const NewTaskDialog = ({ projectId }: { projectId: string }) => {
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleAddTask} className='flex flex-col gap-3'>
-          <Input
-            type='text'
-            name='title'
-            placeholder='title'
-            autoFocus
-            required
-          />
-          <Textarea name='description' placeholder='description' rows={5} />
-          <Select name='priority' defaultValue='low'>
-            <SelectTrigger>
-              <SelectValue placeholder='priority' />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value='low' defaultChecked>
-                Low
-              </SelectItem>
-              <SelectItem value='medium'>Medium</SelectItem>
-              <SelectItem value='high'>High</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button type='submit'>Add task</Button>
+          <div className='form-group'>
+            <Label htmlFor='newTaskTitle'>Title</Label>
+            <Input
+              id='newTaskTitle'
+              type='text'
+              name='title'
+              placeholder='title'
+              autoFocus
+              required
+            />
+          </div>
+          <div className='form-group'>
+            <Label htmlFor='newTaskDescription'>Description</Label>
+            <Textarea
+              id='newTaskDescription'
+              name='description'
+              placeholder='description'
+              rows={5}
+            />
+          </div>
+          <div className='form-group'>
+            <Label>Priority</Label>
+            <Select name='priority' defaultValue='low'>
+              <SelectTrigger>
+                <SelectValue
+                  placeholder={
+                    <>
+                      <Indicator className={`${priorityColors.low}`} />
+                      Low
+                    </>
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='low'>
+                  <Indicator className={priorityColors.low} />
+                  Low
+                </SelectItem>
+                <SelectItem value='medium'>
+                  <Indicator className={priorityColors.medium} />
+                  Medium
+                </SelectItem>
+                <SelectItem value='high'>
+                  <Indicator className={priorityColors.high} />
+                  High
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className='form-footer'>
+            <Button type='submit'>Add task</Button>
+          </div>
         </form>
       </DialogContent>
     </Dialog>
