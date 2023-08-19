@@ -54,8 +54,8 @@ export const NewProjectDialog = () => {
       <Dialog open={open} onOpenChange={() => setOpen(!open)}>
         <DialogTrigger asChild>
           <Button variant='default' className='w-fit h-fit p-2'>
-            <PlusIcon className='mr-2 w-5 h-5' />
-            New
+            Project
+            <PlusIcon className='ml-1 w-5 h-5' />
           </Button>
         </DialogTrigger>
         <DialogContent>

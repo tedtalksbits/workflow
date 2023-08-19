@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { ProjectUpdate } from './ProjectUpdate';
 import { GetProjectsProps, projectApi } from './api/project';
+import { dayjsUtils } from '@/utils/dayjs';
 type NavbarProps = {
   projects: Project[];
   onSelectProjectId: (projectId: string) => void;
@@ -61,7 +62,10 @@ export const ProjectsList = ({
               onClick={() => onSelectProjectId(project.id)}
               className='py-2 px-4 flex-1'
             >
-              {project.name}
+              <div>{project.name}</div>
+              <div className='text-xs text-foreground/40'>
+                {dayjsUtils.timeFromNow(project.updatedAt)}
+              </div>
             </li>
             <div className='pr-4 py-2'>
               <ProjectUpdate project={project} />

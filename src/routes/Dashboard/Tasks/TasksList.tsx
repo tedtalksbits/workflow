@@ -15,6 +15,7 @@ import { TaskUpdate } from './TaskUpdate';
 import { GetTasksProps, taskApi } from './api/task';
 import { useToast } from '@/components/ui/use-toast';
 import { CustomSelect } from '@/components/customSelects/CustomSelect';
+import { dayjsUtils } from '@/utils/dayjs';
 
 type TaskTableProps = {
   tasks: Task[];
@@ -93,11 +94,11 @@ export const TasksList = ({
               'Due Date',
               'Status',
               'Priority',
-              'Assignee',
+              'Tags',
               'Created',
               '',
             ].map((header) => (
-              <TableCell key={header} className='font-medium'>
+              <TableCell key={header} className='text-foreground/40'>
                 {header}
               </TableCell>
             ))}
@@ -145,8 +146,10 @@ export const TasksList = ({
                   indicatorColors={priorityColors}
                 />
               </TableCell>
-              <TableCell>{task.assignee}</TableCell>
-              <TableCell>{task.createdAt}</TableCell>
+              <TableCell>{task.tags}</TableCell>
+              <TableCell title={task.createdAt}>
+                {dayjsUtils.timeFromNow(task.createdAt)}
+              </TableCell>
               <TableCell className='cursor-pointer'>
                 <TaskUpdate task={task} key={task.id} />
               </TableCell>
