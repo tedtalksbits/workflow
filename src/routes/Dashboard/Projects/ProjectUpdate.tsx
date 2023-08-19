@@ -27,6 +27,7 @@ import { deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/firebase';
 import { useAuth } from '@/hooks/useAuth';
 import { useState } from 'react';
+import { Zone } from '@/components/zone/Zone';
 export const ProjectUpdate = ({ project }: { project: Project }) => {
   const [open, setOpen] = useState(false);
   const { user } = useAuth();
@@ -100,7 +101,7 @@ export const ProjectUpdate = ({ project }: { project: Project }) => {
           </form>
           <Separator className='my-4' />
           <h2>Danger Zone</h2>
-          <div className='border-destructive border bg-destructive/20 rounded-lg p-4'>
+          <Zone variant='destructive'>
             <div className='flex item-center justify-between'>
               <div>
                 <h3>Delete Project</h3>
@@ -136,7 +137,7 @@ export const ProjectUpdate = ({ project }: { project: Project }) => {
                 </AlertDialogContent>
               </AlertDialog>
             </div>
-          </div>
+          </Zone>
         </DialogContent>
       </Dialog>
     </div>

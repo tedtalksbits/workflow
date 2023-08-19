@@ -51,7 +51,7 @@
 
 /* black theme */
 
-@layer base {
+/* @layer base {
   :root {
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
@@ -68,7 +68,7 @@
     --accent: 0 0% 96.1%;
     --accent-foreground: 0 0% 9%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 0 0% 3.9%;
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
     --ring: 0 0% 3.9%;
@@ -96,7 +96,58 @@
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
+    --ring: 217.2 91.2% 19.8%;
+    --success: 135, 70%, 52%;
+    --success-foreground: 0 0% 8%;
+  }
+} */
+/* grey theme */
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 3.9%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --radius: 0.5rem;
+    --success: 135, 70%, 52%;
+    --success-foreground: 0 0% 8%;
+  }
+
+  .dark {
+    --background: 330 3% 15%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 19%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 19%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 21%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 21%;
+    --input: 0 0% 19%;
+    --ring: 217.2 91.2% 19.8%;
     --success: 135, 70%, 52%;
     --success-foreground: 0 0% 8%;
   }
@@ -209,5 +260,18 @@
   }
   .pulse-border {
     animation: pulse-border 2s infinite;
+  }
+
+  /* select */
+  select {
+    @apply bg-background border text-foreground text-sm rounded-lg focus:border-primary/30 block w-full p-2  placeholder-foreground/70;
+  }
+
+  select:focus {
+    @apply outline-none;
+  }
+
+  select option {
+    @apply bg-background text-foreground text-sm rounded-lg focus:border-primary/30 block w-full p-4  placeholder-foreground/70;
   }
 }

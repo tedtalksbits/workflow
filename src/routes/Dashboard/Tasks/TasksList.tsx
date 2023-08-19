@@ -7,12 +7,20 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useAuth } from '@/hooks/useAuth';
-import { Task } from '@/types/task';
+import {
+  Task,
+  TaskPriority,
+  TaskStatus,
+  priorityColors,
+  statusColors,
+} from '@/types/task';
 import { TableIcon } from '@radix-ui/react-icons';
 import { useEffect } from 'react';
 import { NewTaskDialog } from './NewTask';
 import { TaskUpdate } from './TaskUpdate';
 import { GetTasksProps, taskApi } from './api/task';
+import { useToast } from '@/components/ui/use-toast';
+import { CustomSelect } from '@/components/customSelects/CustomSelect';
 
 type TaskTableProps = {
   tasks: Task[];
@@ -26,21 +34,53 @@ export const TasksList = ({
   setTasks,
 }: TaskTableProps) => {
   const { user } = useAuth();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!user) throw new Error('User is not defined');
     if (!selectedProjectId) return;
-    console.log(selectedProjectId);
+
     const getTasksObj: GetTasksProps = {
       projectId: selectedProjectId,
       user,
-      onError: () => console.log('error'),
+      onError: () => {
+        toast({
+          title: 'Something went wrong',
+          description: 'Tasks were not fetched.',
+          variant: 'destructive',
+        });
+      },
       onSuccess(task) {
         setTasks(task);
       },
     };
     taskApi.getTasks(getTasksObj);
-  }, [setTasks, selectedProjectId, user]);
+  }, [setTasks, selectedProjectId, user, toast]);
+
+  const handleUpdateTask = async (update: Partial<Task>) => {
+    if (!user) return console.log('no user');
+    if (update.id === undefined) return console.log('no id');
+    const taskUpdate = {
+      id: update.id,
+      update,
+      user,
+      onSuccess: () => {
+        toast({
+          title: 'Task updated',
+          description: 'Task was successfully updated.',
+          variant: 'success',
+        });
+      },
+      onError: () =>
+        toast({
+          title: 'Something went wrong',
+          description: 'Task was not updated.',
+          variant: 'destructive',
+        }),
+    };
+    taskApi.updateTask(taskUpdate);
+  };
+
   return (
     <div>
       <div className='flex item-center justify-between mb-8'>
@@ -79,13 +119,38 @@ export const TasksList = ({
                     name=''
                     id={task.id}
                     className='checkbox-fancy'
+                    checked={task.status === 'done'}
+                    onChange={() => {
+                      handleUpdateTask({
+                        id: task.id,
+                        status: task.status === 'done' ? 'todo' : 'done',
+                      });
+                    }}
                   />{' '}
                   {task.title}
                 </label>
               </TableCell>
               <TableCell>{task.dueDate}</TableCell>
-              <TableCell>{task.status}</TableCell>
-              <TableCell>{task.priority}</TableCell>
+              <TableCell>
+                <CustomSelect
+                  options={['todo', 'inProgress', 'done'] as TaskStatus[]}
+                  selected={task.status}
+                  onChange={(value) => {
+                    handleUpdateTask({ id: task.id, status: value });
+                  }}
+                  indicatorColors={statusColors}
+                />
+              </TableCell>
+              <TableCell>
+                <CustomSelect
+                  options={['low', 'medium', 'high']}
+                  selected={task.priority}
+                  onChange={(value) => {
+                    handleUpdateTask({ id: task.id, priority: value });
+                  }}
+                  indicatorColors={priorityColors}
+                />
+              </TableCell>
               <TableCell>{task.assignee}</TableCell>
               <TableCell>{task.createdAt}</TableCell>
               <TableCell className='cursor-pointer'>

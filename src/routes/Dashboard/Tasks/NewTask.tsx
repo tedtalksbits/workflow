@@ -16,12 +16,11 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { db } from '@/firebase';
 import { useAuth } from '@/hooks/useAuth';
 import { Task } from '@/types/task';
 import { PlusIcon } from '@radix-ui/react-icons';
-import { addDoc, collection } from 'firebase/firestore';
 import { useState } from 'react';
+import { AddTaskProps, taskApi } from './api/task';
 export const NewTaskDialog = ({ projectId }: { projectId: string }) => {
   const [open, setOpen] = useState(false);
   const { user } = useAuth();
@@ -44,12 +43,22 @@ export const NewTaskDialog = ({ projectId }: { projectId: string }) => {
       projectId,
     };
 
-    try {
-      await addDoc(collection(db, 'tasks', user.uid, 'task'), task);
-      setOpen(false);
-    } catch (error) {
-      console.log(error);
-    }
+    const addTaskRequest: AddTaskProps = {
+      task,
+      projectId,
+      user,
+      onError,
+      onSuccess,
+    };
+
+    taskApi.addTask(addTaskRequest);
+  };
+
+  const onError = () => {
+    console.log('error');
+  };
+  const onSuccess = () => {
+    setOpen(false);
   };
   return (
     <Dialog open={open} onOpenChange={() => setOpen(!open)}>

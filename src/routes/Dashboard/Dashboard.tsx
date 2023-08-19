@@ -15,7 +15,7 @@ export const Dashboard = () => {
   if (!user) return null;
   return (
     <div className='flex h-screen'>
-      <div className='sidebar h-full border-r w-[25%] max-w-[300px] bg-accent'>
+      <div className='sidebar h-full border-r w-[25%] max-w-[300px] bg-muted'>
         <ProjectsList
           setProjects={setProjects}
           projects={projects}

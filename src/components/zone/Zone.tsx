@@ -1,7 +1,6 @@
 import { cn } from '@/lib/utils';
 import { cva } from 'class-variance-authority';
 import React from 'react';
-import { Button } from '../ui/button';
 
 const zoneVariants = cva(
   'p-4 rounded-xl transition-colors duration-300 ease-in-out',
@@ -9,7 +8,7 @@ const zoneVariants = cva(
     variants: {
       variant: {
         default:
-          'bg-foreground/10 text-foreground-foreground border-foreground border hover:bg-foreground/20',
+          'bg-foreground/10 text-foreground border-foreground border hover:bg-foreground/20',
         destructive:
           'bg-destructive/10 text-destructive-foreground border-destructive border hover:bg-destructive/20 ',
         success:

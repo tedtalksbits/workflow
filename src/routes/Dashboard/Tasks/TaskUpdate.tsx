@@ -17,7 +17,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { ArrowRightIcon } from '@radix-ui/react-icons';
 import { useAuth } from '@/hooks/useAuth';
 import { useState } from 'react';
-import { Task } from '@/types/task';
+import { Task, priorityColors } from '@/types/task';
 import {
   Sheet,
   SheetContent,
@@ -26,10 +26,19 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Zone } from '@/components/zone/Zone';
 import { DeleteTaskProps, taskApi } from './api/task';
 import { useToast } from '@/components/ui/use-toast';
+import Indicator from '@/components/ui/indicator';
+import { Label } from '@/components/ui/label';
 export const TaskUpdate = ({ task }: { task: Task }) => {
   const [open, setOpen] = useState(false);
   const { user } = useAuth();
@@ -110,31 +119,66 @@ export const TaskUpdate = ({ task }: { task: Task }) => {
               irreversible.
             </SheetDescription>
           </SheetHeader>
-          <Tabs defaultValue='view'>
+          <Tabs defaultValue='view' className='my-4'>
             <TabsList>
               <TabsTrigger value='update'>Update</TabsTrigger>
               <TabsTrigger value='view'>View</TabsTrigger>
             </TabsList>
-            <TabsContent value='update'>
+            <TabsContent value='update' className='my-4'>
               <form onSubmit={handleUpdateTask} className='flex flex-col gap-3'>
+                <Label htmlFor={task.id + 'title'}>Title</Label>
                 <Input
                   type='text'
                   name='title'
                   placeholder='title'
+                  id={task.id + 'title'}
                   autoFocus
                   required
                   defaultValue={task.title}
                 />
+                <Label htmlFor={task.id + 'description'}>Description</Label>
                 <Textarea
                   name='description'
                   placeholder='description'
                   rows={5}
+                  id={task.id + 'description'}
                   defaultValue={task.description}
                 />
+                <Label htmlFor={task.id + 'priority'}>Priority</Label>
+                <Select name='priority' defaultValue={task.priority}>
+                  <SelectTrigger>
+                    <SelectValue>
+                      <Indicator
+                        className={`${
+                          task.priority === 'low'
+                            ? priorityColors.low
+                            : task.priority === 'medium'
+                            ? priorityColors.medium
+                            : priorityColors.high
+                        }`}
+                      />
+                      {task.priority}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent id={task.id + 'priority'}>
+                    <SelectItem value='low' defaultValue={task.priority}>
+                      <Indicator className={priorityColors.low} />
+                      Low
+                    </SelectItem>
+                    <SelectItem defaultValue={task.priority} value='medium'>
+                      <Indicator className={priorityColors.medium} />
+                      Medium
+                    </SelectItem>
+                    <SelectItem defaultValue={task.priority} value='high'>
+                      <Indicator className={priorityColors.high} />
+                      High
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
                 <Button type='submit'>Update</Button>
               </form>
-              <Separator className='my-4' />
-              <h2>Danger Zone</h2>
+              <Separator className='mt-[100%]' />
+              <h2 className='font-bold my-2'>Danger Zone</h2>
               <Zone variant='destructive'>
                 <div className='flex item-center justify-between'>
                   <div>
