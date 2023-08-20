@@ -53,7 +53,7 @@ export const ProjectsList = ({
       <div className='px-2 my-4'>
         <Input
           placeholder='Search projects'
-          className='p-6 bg-primary/10'
+          className='p-6'
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>

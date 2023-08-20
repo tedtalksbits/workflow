@@ -16,6 +16,7 @@ import { GetTasksProps, taskApi } from './api/task';
 import { useToast } from '@/components/ui/use-toast';
 import { CustomSelect } from '@/components/customSelects/CustomSelect';
 import { dayjsUtils } from '@/utils/dayjs';
+import { Checkbox } from '@/components/ui/checkbox';
 
 type TaskTableProps = {
   tasks: Task[];
@@ -106,14 +107,18 @@ export const TasksList = ({
         </TableHeader>
         <TableBody>
           {tasks.map((task) => (
-            <TableRow key={task.id}>
+            <TableRow
+              key={task.id}
+              className={`${
+                task.status === 'done' && 'bg-green-600/5 hover:bg-green-600/5'
+              }`}
+            >
               <TableCell>
-                <label htmlFor={task.id}>
+                <label htmlFor={task.id} title={task.title}>
                   <input
-                    type='checkbox'
-                    name=''
                     id={task.id}
-                    className='checkbox-fancy'
+                    type='checkbox'
+                    className='peer checkbox-fancy'
                     checked={task.status === 'done'}
                     onChange={() => {
                       handleUpdateTask({
@@ -122,7 +127,9 @@ export const TasksList = ({
                       });
                     }}
                   />{' '}
-                  {task.title}
+                  <span className='peer-checked:text-foreground/50'>
+                    {task.title}
+                  </span>
                 </label>
               </TableCell>
               <TableCell>{task.dueDate}</TableCell>

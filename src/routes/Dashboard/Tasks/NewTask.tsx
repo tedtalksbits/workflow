@@ -65,9 +65,8 @@ export const NewTaskDialog = ({ projectId }: { projectId: string }) => {
   return (
     <Dialog open={open} onOpenChange={() => setOpen(!open)}>
       <DialogTrigger asChild>
-        <Button variant='outline' className='w-fit h-fit p-2'>
-          Task
-          <PlusIcon className='ml-2 w-5 h-5' />
+        <Button variant='secondary' className='w-fit h-fit p-2'>
+          New Task
         </Button>
       </DialogTrigger>
       <DialogContent>

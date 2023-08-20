@@ -12,7 +12,6 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/useAuth';
 import { Project } from '@/types/projects';
-import { PlusIcon } from '@radix-ui/react-icons';
 import React from 'react';
 import { AddProjectProps, projectApi } from './api/project';
 import { useToast } from '@/components/ui/use-toast';
@@ -54,8 +53,7 @@ export const NewProjectDialog = () => {
       <Dialog open={open} onOpenChange={() => setOpen(!open)}>
         <DialogTrigger asChild>
           <Button variant='default' className='w-fit h-fit p-2'>
-            Project
-            <PlusIcon className='ml-1 w-5 h-5' />
+            New Project
           </Button>
         </DialogTrigger>
         <DialogContent>

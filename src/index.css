@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 /* blue theme */
-@layer base {
+/* @layer base {
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
@@ -33,7 +33,7 @@
     --card-foreground: 210 40% 98%;
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
+    --primary: 251 70% 54%;
     --primary-foreground: 222.2 47.4% 11.2%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -47,7 +47,7 @@
     --input: 217.2 32.6% 17.5%;
     --ring: 224.3 76.3% 48%;
   }
-}
+} */
 
 /* black theme */
 
@@ -59,7 +59,7 @@
     --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
-    --primary: 217.2 91.2% 59.8%;
+    --primary: 251 70% 54%;
     --primary-foreground: 0 0% 98%;
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
@@ -84,7 +84,7 @@
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
-    --primary: 217.2 91.2% 59.8%;
+    --primary: 251 70% 54%;
     --primary-foreground: 0 0% 9%;
     --secondary: 0 0% 14.9%;
     --secondary-foreground: 0 0% 98%;
@@ -102,7 +102,7 @@
   }
 } */
 /* grey theme */
-/* @layer base {
+@layer base {
   :root {
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
@@ -110,7 +110,7 @@
     --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
-    --primary: 217.2 91.2% 59.8%;
+    --primary: 251 70% 54%;
     --primary-foreground: 0 0% 98%;
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
@@ -122,36 +122,36 @@
     --destructive-foreground: 0 0% 3.9%;
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
+    --ring: 251 70% 54%;
     --radius: 0.5rem;
     --success: 135, 70%, 52%;
     --success-foreground: 0 0% 8%;
   }
 
   .dark {
-    --background: 330 3% 15%;
+    --background: 200 6% 9%;
     --foreground: 0 0% 98%;
-    --card: 0 0% 19%;
+    --card: 204 6% 15%;
     --card-foreground: 0 0% 98%;
-    --popover: 0 0% 19%;
+    --popover: 204 6% 15%;
     --popover-foreground: 0 0% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 10%;
+    --primary: 251 70% 54%;
+    --primary-foreground: 0 0% 99%;
+    --secondary: 204 6% 15%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 10%;
+    --muted: 204 6% 15%;
     --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 21%;
+    --accent: 204 6% 19%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 21%;
-    --input: 0 0% 19%;
-    --ring: 217.2 91.2% 19.8%;
+    --border: 204 6% 17%;
+    --input: 204 6% 17%;
+    --ring: 251 70% 54%;
     --success: 135, 70%, 52%;
     --success-foreground: 0 0% 8%;
   }
-} */
+}
 
 @layer base {
   * {
@@ -161,7 +161,7 @@
     @apply bg-background text-foreground;
   }
   .checkbox-fancy {
-    --color: rgb(14 165 233);
+    --color: hsl(var(--primary));
     --text-color: #fff;
     --background-color: #000;
     --width: 18px;
