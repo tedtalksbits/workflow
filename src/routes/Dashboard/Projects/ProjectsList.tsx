@@ -2,7 +2,7 @@ import { FileTextIcon } from '@radix-ui/react-icons';
 import { Input } from '@/components/ui/input';
 import { Project } from '@/types/projects';
 import { NewProjectDialog } from './NewProject';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { ProjectUpdate } from './ProjectUpdate';
 import { GetProjectsProps, projectApi } from './api/project';
@@ -21,6 +21,7 @@ export const ProjectsList = ({
   selectedProjectId,
 }: NavbarProps) => {
   const { user } = useAuth();
+  const [searchQuery, setSearchQuery] = useState('');
   useEffect(() => {
     if (!user) {
       throw new Error('User not found');
@@ -34,6 +35,10 @@ export const ProjectsList = ({
     };
     projectApi.getProjects(getProjectsRequest);
   }, [user, setProjects]);
+
+  const filteredProjects = projects.filter((project) =>
+    project.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
   return (
     <div className='projects-container'>
       <header className='border-b  h-[5rem] flex flex-col justify-center'>
@@ -46,10 +51,14 @@ export const ProjectsList = ({
         </div>
       </header>
       <div className='px-2 my-4'>
-        <Input placeholder='Search projects' className='p-6 bg-primary/10' />
+        <Input
+          placeholder='Search projects'
+          className='p-6 bg-primary/10'
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
       </div>
       <ul className='mt-4'>
-        {projects.map((project) => (
+        {filteredProjects.map((project) => (
           <div
             key={project.id}
             className={`${
