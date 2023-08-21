@@ -310,7 +310,9 @@ export const TasksList = ({
                   </span>
                 </label>
               </TableCell>
-              <TableCell>{task.dueDate}</TableCell>
+              <TableCell title={task.dueDate}>
+                {task.dueDate && dayjsUtils.timeFromNow(task.dueDate)}
+              </TableCell>
               <TableCell>
                 <CustomSelect
                   options={['todo', 'inProgress', 'done'] as TaskStatus[]}

@@ -25,10 +25,11 @@ export const CustomSelect = <T extends string | number>({
   };
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger>
+      <DropdownMenuTrigger className='outline-none '>
         <div
           className={
-            indicatorColors?.[selected] + ' px-2 py-1 rounded-full outline-none'
+            indicatorColors?.[selected] +
+            ' px-2 py-[.15rem] rounded-full text-[.7rem] border-none'
           }
         >
           <Indicator className={indicatorColors?.[selected]} />

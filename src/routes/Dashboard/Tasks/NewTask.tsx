@@ -18,19 +18,23 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/useAuth';
 import { Task, priorityColors } from '@/types/task';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { AddTaskProps, taskApi } from './api/task';
 import { Label } from '@/components/ui/label';
 import Indicator from '@/components/ui/indicator';
+import { Badge } from '@/components/ui/badge';
 export const NewTaskDialog = ({ projectId }: { projectId: string }) => {
   const [open, setOpen] = useState(false);
   const { user } = useAuth();
+  const [tags, setTags] = useState<string>('');
+  const tagInput = useRef<HTMLInputElement>(null);
   const handleAddTask = async (e: React.FormEvent<HTMLFormElement>) => {
     if (!user) return console.log('no user');
     if (!projectId) return console.log('no project id');
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
+    const dueDate = new Date(formData.get('dueDate') as string).toISOString();
 
     const task: Partial<Task> = {
       title: formData.get('title') as string,
@@ -39,8 +43,9 @@ export const NewTaskDialog = ({ projectId }: { projectId: string }) => {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       priority: formData.get('priority') as 'low' | 'medium' | 'high',
-      assignee: '',
-      dueDate: '',
+      assignee: formData.get('assignee') as string,
+      dueDate,
+      tags: formData.get('tags') as string,
       projectId,
     };
 
@@ -60,6 +65,27 @@ export const NewTaskDialog = ({ projectId }: { projectId: string }) => {
   };
   const onSuccess = () => {
     setOpen(false);
+  };
+
+  const commonBadges = [
+    'bug',
+    'feature',
+    'enhancement',
+    'documentation',
+    'help wanted',
+    'good first issue',
+  ];
+
+  const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTags(e.target.value);
+  };
+  const handleClickToAddTag = (tag: string) => {
+    if (tags === '') {
+      setTags(tag);
+    } else {
+      setTags(tags + `, ${tag}`);
+    }
+    tagInput.current?.focus();
   };
   return (
     <Dialog open={open} onOpenChange={() => setOpen(!open)}>
@@ -123,6 +149,50 @@ export const NewTaskDialog = ({ projectId }: { projectId: string }) => {
               </SelectContent>
             </Select>
           </div>
+          <div className='form-group'>
+            <Label htmlFor='newTaskAssignee'>Assignee</Label>
+            <Input
+              id='newTaskAssignee'
+              type='text'
+              name='assignee'
+              placeholder='assignee'
+            />
+          </div>
+          <div className='form-group'>
+            <Label htmlFor='newTaskDueDate'>Due Date</Label>
+            <Input
+              id='newTaskDueDate'
+              type='date'
+              name='dueDate'
+              placeholder='due date'
+              defaultValue={new Date().toISOString().slice(0, 10)}
+            />
+          </div>
+          <div className='form-group'>
+            <Label htmlFor='newTaskTags'>Tags</Label>
+            <div className='flex flex-wrap gap-2'>
+              {commonBadges.map((badge) => (
+                <Badge
+                  key={badge}
+                  className='cursor-pointer'
+                  onClick={() => handleClickToAddTag(badge)}
+                  variant='secondary'
+                >
+                  {badge}
+                </Badge>
+              ))}
+            </div>
+            <Input
+              id='newTaskTags'
+              type='text'
+              name='tags'
+              placeholder='tags'
+              value={tags}
+              onChange={handleTagsChange}
+              ref={tagInput}
+            />
+          </div>
+
           <div className='form-footer'>
             <Button type='submit'>Add task</Button>
           </div>
