@@ -23,6 +23,7 @@ import { AddTaskProps, taskApi } from './api/task';
 import { Label } from '@/components/ui/label';
 import Indicator from '@/components/ui/indicator';
 import { Badge } from '@/components/ui/badge';
+import { Cross1Icon } from '@radix-ui/react-icons';
 export const NewTaskDialog = ({ projectId }: { projectId: string }) => {
   const [open, setOpen] = useState(false);
   const { user } = useAuth();
@@ -86,6 +87,11 @@ export const NewTaskDialog = ({ projectId }: { projectId: string }) => {
       setTags(tags + `, ${tag}`);
     }
     tagInput.current?.focus();
+  };
+  const handleRemoveTag = (tag: string) => {
+    const tagsArray = tags.split(', ');
+    const newTagsArray = tagsArray.filter((t) => t !== tag);
+    setTags(newTagsArray.join(', '));
   };
   return (
     <Dialog open={open} onOpenChange={() => setOpen(!open)}>
@@ -162,24 +168,34 @@ export const NewTaskDialog = ({ projectId }: { projectId: string }) => {
             <Label htmlFor='newTaskDueDate'>Due Date</Label>
             <Input
               id='newTaskDueDate'
-              type='date'
+              type='datetime-local'
               name='dueDate'
               placeholder='due date'
-              defaultValue={new Date().toISOString().slice(0, 10)}
+              defaultValue={new Date().toISOString().slice(0, 16)}
+              min={new Date().toISOString().slice(0, 16)}
             />
           </div>
           <div className='form-group'>
             <Label htmlFor='newTaskTags'>Tags</Label>
             <div className='flex flex-wrap gap-2'>
               {commonBadges.map((badge) => (
-                <Badge
-                  key={badge}
-                  className='cursor-pointer'
-                  onClick={() => handleClickToAddTag(badge)}
-                  variant='secondary'
-                >
-                  {badge}
-                </Badge>
+                <div key={badge} className='relative'>
+                  <Badge
+                    className='cursor-pointer'
+                    onClick={() => handleClickToAddTag(badge)}
+                    variant='secondary'
+                  >
+                    {badge}
+                  </Badge>
+                  {tags.includes(badge) && (
+                    <span
+                      onClick={() => handleRemoveTag(badge)}
+                      className='p-1 absolute top-[-10px] right-[-10px]  bg-red-500 rounded-full cursor-pointer z-10'
+                    >
+                      <Cross1Icon className='w-2 h-2' />
+                    </span>
+                  )}
+                </div>
               ))}
             </div>
             <Input
