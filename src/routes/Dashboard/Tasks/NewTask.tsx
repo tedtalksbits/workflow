@@ -22,8 +22,7 @@ import { useRef, useState } from 'react';
 import { AddTaskProps, taskApi } from './api/task';
 import { Label } from '@/components/ui/label';
 import Indicator from '@/components/ui/indicator';
-import { Badge } from '@/components/ui/badge';
-import { Cross1Icon } from '@radix-ui/react-icons';
+import { CustomTagSelect } from '@/components/customSelects/CustomTagSelect';
 export const NewTaskDialog = ({ projectId }: { projectId: string }) => {
   const [open, setOpen] = useState(false);
   const { user } = useAuth();
@@ -67,15 +66,6 @@ export const NewTaskDialog = ({ projectId }: { projectId: string }) => {
   const onSuccess = () => {
     setOpen(false);
   };
-
-  const commonBadges = [
-    'bug',
-    'feature',
-    'enhancement',
-    'documentation',
-    'help wanted',
-    'good first issue',
-  ];
 
   const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTags(e.target.value);
@@ -178,25 +168,11 @@ export const NewTaskDialog = ({ projectId }: { projectId: string }) => {
           <div className='form-group'>
             <Label htmlFor='newTaskTags'>Tags</Label>
             <div className='flex flex-wrap gap-2'>
-              {commonBadges.map((badge) => (
-                <div key={badge} className='relative'>
-                  <Badge
-                    className='cursor-pointer'
-                    onClick={() => handleClickToAddTag(badge)}
-                    variant='secondary'
-                  >
-                    {badge}
-                  </Badge>
-                  {tags.includes(badge) && (
-                    <span
-                      onClick={() => handleRemoveTag(badge)}
-                      className='p-1 absolute top-[-10px] right-[-10px]  bg-red-500 rounded-full cursor-pointer z-10'
-                    >
-                      <Cross1Icon className='w-2 h-2' />
-                    </span>
-                  )}
-                </div>
-              ))}
+              <CustomTagSelect
+                onTagClick={handleClickToAddTag}
+                onTagRemove={handleRemoveTag}
+                tags={tags}
+              />
             </div>
             <Input
               id='newTaskTags'
