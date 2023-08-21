@@ -109,7 +109,12 @@ const getTasks = async ({
     const filteredTasks = tasksData.filter(
       (task) => task.projectId === projectId
     );
-    onSuccess(filteredTasks);
+    const sortedTasks = filteredTasks.sort((a, b) => {
+      if (a.createdAt > b.createdAt) return -1;
+      if (a.createdAt < b.createdAt) return 1;
+      return 0;
+    });
+    onSuccess(sortedTasks);
   });
 };
 

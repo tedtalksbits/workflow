@@ -132,7 +132,7 @@ export const TasksList = ({
             </PopoverTrigger>
             <PopoverContent>
               <h4 className='mb-4 font-medium text-lg'>Filter</h4>
-              <details open>
+              <details open={searchTerm.key === 'priority'}>
                 <summary className='text-sm font-bold'>Priority</summary>
                 <div className='flex gap-4'>
                   <input
@@ -183,7 +183,7 @@ export const TasksList = ({
                   <Label htmlFor='highRadio'>high</Label>
                 </div>
               </details>
-              <details>
+              <details open={searchTerm.key === 'status'}>
                 <summary className='text-sm font-bold'>Status</summary>
                 <div className='flex gap-4'>
                   <input
