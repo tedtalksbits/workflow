@@ -1,5 +1,4 @@
 import { Button } from '@/components/ui/button';
-
 import {
   AlertDialog,
   AlertDialogAction,
@@ -138,12 +137,12 @@ export const TaskUpdate = ({ task }: { task: Task }) => {
                   />
                 </div>
                 <div className='form-group'>
-                  <Label htmlFor={task.id + 'description'}>Description</Label>
+                  <Label htmlFor={`${task.id}description`}>Description</Label>
                   <Textarea
                     name='description'
                     placeholder='description'
                     rows={5}
-                    id={task.id + 'description'}
+                    id={`${task.id}description`}
                     defaultValue={task.description}
                   />
                 </div>

@@ -7,13 +7,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { useAuth } from '@/hooks/useAuth';
-import {
-  Task,
-  TaskPriority,
-  TaskStatus,
-  priorityColors,
-  statusColors,
-} from '@/types/task';
+import { Task, TaskStatus, priorityColors, statusColors } from '@/types/task';
 import { TableIcon } from '@radix-ui/react-icons';
 import { useEffect, useRef, useState } from 'react';
 import { NewTaskDialog } from './NewTask';
@@ -29,11 +23,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from '@/components/ui/collapsible';
+
 import { Label } from '@radix-ui/react-label';
 
 type TaskTableProps = {
