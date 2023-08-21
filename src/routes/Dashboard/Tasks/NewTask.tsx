@@ -33,21 +33,24 @@ export const NewTaskDialog = ({ projectId }: { projectId: string }) => {
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
-    const dueDate = new Date(formData.get('dueDate') as string).toISOString();
+    const data = Object.fromEntries(formData.entries()) as Partial<Task>;
+
+    data.dueDate && new Date(data.dueDate).toISOString();
 
     const task: Partial<Task> = {
-      title: formData.get('title') as string,
-      description: formData.get('description') as string,
+      title: data.title,
+      description: data.description,
       status: 'todo',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      priority: formData.get('priority') as 'low' | 'medium' | 'high',
-      assignee: formData.get('assignee') as string,
-      dueDate,
-      tags: formData.get('tags') as string,
+      priority: data.priority,
+      assignee: data.assignee,
+      dueDate: data.dueDate,
+      tags: data.tags,
       projectId,
     };
-
+    console.log(task.projectId);
+    taskApi.validateTask(task);
     const addTaskRequest: AddTaskProps = {
       task,
       projectId,

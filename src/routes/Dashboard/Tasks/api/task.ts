@@ -116,11 +116,28 @@ const getTasks = async ({
   });
 };
 
+const validateTask = (task: Partial<Task>) => {
+  console.log(task);
+  if (!task.title) throw new Error('No title');
+  if (!task.projectId) throw new Error('No project id');
+  if (!task.createdAt) throw new Error('No created at');
+  if (!task.status) throw new Error('No status');
+  if (new Date(task.createdAt).getTime() > new Date().getTime())
+    throw new Error('Created at is in the future');
+  if (
+    task.status !== 'todo' &&
+    task.status !== 'inProgress' &&
+    task.status !== 'done'
+  )
+    throw new Error('Invalid status');
+};
+
 export const taskApi = {
   deleteTask,
   updateTask,
   getTasks,
   addTask,
+  validateTask,
 };
 export interface DeleteTaskProps {
   id: string;
