@@ -225,7 +225,7 @@ export const TaskUpdate = ({ task }: { task: Task }) => {
                   <Button type='submit'>Update</Button>
                 </div>
               </form>
-              <Separator className='mt-[100%]' />
+              <Separator className='my-20' />
               <h2 className='font-bold my-2'>Danger Zone</h2>
               <Zone variant='destructive'>
                 <div className='flex item-center justify-between'>
