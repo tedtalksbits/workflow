@@ -131,6 +131,7 @@ export const TasksList = ({
               </Button>
             </PopoverTrigger>
             <PopoverContent>
+              <h4 className='mb-4 font-medium text-lg'>Filter</h4>
               <details open>
                 <summary className='text-sm font-bold'>Priority</summary>
                 <div className='flex gap-4'>
