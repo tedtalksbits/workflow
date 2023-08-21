@@ -18,7 +18,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/useAuth';
 import { Task, priorityColors } from '@/types/task';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { AddTaskProps, taskApi } from './api/task';
 import { Label } from '@/components/ui/label';
 import Indicator from '@/components/ui/indicator';
@@ -27,7 +27,6 @@ export const NewTaskDialog = ({ projectId }: { projectId: string }) => {
   const [open, setOpen] = useState(false);
   const { user } = useAuth();
   const [tags, setTags] = useState<string>('');
-  const tagInput = useRef<HTMLInputElement>(null);
   const handleAddTask = async (e: React.FormEvent<HTMLFormElement>) => {
     if (!user) return console.log('no user');
     if (!projectId) return console.log('no project id');
@@ -67,22 +66,6 @@ export const NewTaskDialog = ({ projectId }: { projectId: string }) => {
     setOpen(false);
   };
 
-  const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setTags(e.target.value);
-  };
-  const handleClickToAddTag = (tag: string) => {
-    if (tags === '') {
-      setTags(tag);
-    } else {
-      setTags(tags + `, ${tag}`);
-    }
-    tagInput.current?.focus();
-  };
-  const handleRemoveTag = (tag: string) => {
-    const tagsArray = tags.split(', ');
-    const newTagsArray = tagsArray.filter((t) => t !== tag);
-    setTags(newTagsArray.join(', '));
-  };
   return (
     <Dialog open={open} onOpenChange={() => setOpen(!open)}>
       <DialogTrigger asChild>
@@ -166,25 +149,8 @@ export const NewTaskDialog = ({ projectId }: { projectId: string }) => {
             />
           </div>
           <div className='form-group'>
-            <Label htmlFor='newTaskTags'>Tags</Label>
-            <div className='flex flex-wrap gap-2'>
-              <CustomTagSelect
-                onTagClick={handleClickToAddTag}
-                onTagRemove={handleRemoveTag}
-                tags={tags}
-              />
-            </div>
-            <Input
-              id='newTaskTags'
-              type='text'
-              name='tags'
-              placeholder='tags'
-              value={tags}
-              onChange={handleTagsChange}
-              ref={tagInput}
-            />
+            <CustomTagSelect setTags={setTags} tags={tags} />
           </div>
-
           <div className='form-footer'>
             <Button type='submit'>Add task</Button>
           </div>
