@@ -286,4 +286,47 @@
   form .form-footer {
     @apply flex flex-col gap-4 mt-10;
   }
+
+  /*details summary*/
+  details summary {
+    @apply flex items-center gap-2;
+  }
+
+  details summary::-webkit-details-marker {
+    @apply hidden;
+  }
+
+  details summary::marker {
+    @apply hidden;
+  }
+
+  details summary:focus {
+    @apply outline-none;
+  }
+
+  summary {
+    @apply cursor-pointer text-foreground text-sm rounded-lg bg-background/25 p-2;
+  }
+  details[open] summary {
+    @apply bg-background/50;
+  }
+  details[open] summary:hover {
+    @apply bg-background/25;
+  }
+  details {
+    @apply bg-background/25 rounded-lg select-none;
+  }
+
+  details summary::before {
+    @apply content-['+'] text-foreground;
+  }
+
+  details[open] summary::before {
+    @apply content-['-'] text-foreground;
+  }
+
+  /* add padding to details children except summary */
+  details > *:not(summary) {
+    @apply px-4 my-2;
+  }
 }

@@ -24,12 +24,12 @@ type PriorityColors = {
 };
 
 export const statusColors: StatusColors = {
-  done: 'bg-green-500/50',
-  inProgress: 'bg-gray-500/50',
-  todo: 'bg-primary',
+  done: 'bg-green-500/40',
+  inProgress: 'bg-gray-500/40',
+  todo: 'bg-primary/40',
 };
 export const priorityColors: PriorityColors = {
-  low: 'bg-green-500/50',
-  medium: 'bg-yellow-500/50',
-  high: 'bg-red-500/50',
+  low: 'bg-green-500/40',
+  medium: 'bg-yellow-500/40',
+  high: 'bg-red-500/40',
 };

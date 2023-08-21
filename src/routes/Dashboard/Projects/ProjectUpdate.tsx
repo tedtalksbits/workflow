@@ -22,7 +22,7 @@ import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { Project } from '@/types/projects';
-import { GearIcon } from '@radix-ui/react-icons';
+import { Pencil2Icon } from '@radix-ui/react-icons';
 import { useAuth } from '@/hooks/useAuth';
 import { useState } from 'react';
 import { Zone } from '@/components/zone/Zone';
@@ -86,9 +86,9 @@ export const ProjectUpdate = ({ project }: { project: Project }) => {
         <DialogTrigger asChild>
           <div
             role='button'
-            className='p-2 hover:bg-foreground/10 transition-colors duration-300 ease-in-out rounded-full'
+            className='p-2 hover:bg-foreground/10 transition-colors duration-300 ease-in-out rounded-full group'
           >
-            <GearIcon className='w-5 h-5' />
+            <Pencil2Icon className='w-5 h-5 opacity-50 group-hover:opacity-100 transition-opacity duration-300 ease-in-out' />
           </div>
         </DialogTrigger>
         <DialogContent>

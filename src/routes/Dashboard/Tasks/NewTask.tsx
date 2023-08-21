@@ -18,7 +18,6 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/useAuth';
 import { Task, priorityColors } from '@/types/task';
-import { PlusIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
 import { AddTaskProps, taskApi } from './api/task';
 import { Label } from '@/components/ui/label';
@@ -65,9 +64,7 @@ export const NewTaskDialog = ({ projectId }: { projectId: string }) => {
   return (
     <Dialog open={open} onOpenChange={() => setOpen(!open)}>
       <DialogTrigger asChild>
-        <Button variant='secondary' className='w-fit h-fit p-2'>
-          New Task
-        </Button>
+        <Button className='w-fit h-fit p-2'>New Task</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

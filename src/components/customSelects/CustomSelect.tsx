@@ -26,8 +26,14 @@ export const CustomSelect = <T extends string | number>({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
-        <Indicator className={indicatorColors?.[selected]} />
-        {selected}
+        <div
+          className={
+            indicatorColors?.[selected] + ' px-2 py-1 rounded-full outline-none'
+          }
+        >
+          <Indicator className={indicatorColors?.[selected]} />
+          {selected}
+        </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         {options.map((option) => (
