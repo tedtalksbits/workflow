@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/table';
 import { useAuth } from '@/hooks/useAuth';
 import { Task, TaskStatus, priorityColors, statusColors } from '@/types/task';
-import { TableIcon } from '@radix-ui/react-icons';
+import { MixerHorizontalIcon, TableIcon } from '@radix-ui/react-icons';
 import { useEffect, useRef, useState } from 'react';
 import { NewTaskDialog } from './NewTask';
 import { TaskUpdate } from './TaskUpdate';
@@ -125,13 +125,17 @@ export const TasksList = ({
           <Popover>
             <PopoverTrigger asChild>
               <Button variant='secondary'>
+                <MixerHorizontalIcon className='w-5 h-5 mr-2' />
                 {isFiltered
                   ? `${searchTerm.key}:${searchTerm.value}`
                   : 'Filter'}
               </Button>
             </PopoverTrigger>
             <PopoverContent>
-              <h4 className='mb-4 font-medium text-lg'>Filter</h4>
+              <header className='flex items-center justify-between mb-4 '>
+                <h4 className='font-medium text-lg'>Filter</h4>
+                <MixerHorizontalIcon className='w-5 h-5' />
+              </header>
               <details open={searchTerm.key === 'priority'}>
                 <summary className='text-sm font-bold'>Priority</summary>
                 <div className='flex gap-4'>

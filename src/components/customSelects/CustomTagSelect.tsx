@@ -23,6 +23,7 @@ export const CustomTagSelect = ({
   commonTags = commonTagsArr,
 }: CustomTagSelectProps) => {
   const tagInput = useRef<HTMLInputElement>(null);
+  if (!tags) setTags('');
   const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTags(e.target.value);
   };
@@ -52,7 +53,7 @@ export const CustomTagSelect = ({
             >
               {badge}
             </Badge>
-            {tags.includes(badge) && (
+            {tags?.includes(badge) && (
               <span
                 onClick={() => handleRemoveTag(badge)}
                 className='p-1 absolute top-[-10px] right-[-10px]  bg-red-500 rounded-full cursor-pointer z-10'

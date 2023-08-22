@@ -38,17 +38,18 @@ import { DeleteTaskProps, taskApi } from './api/task';
 import { useToast } from '@/components/ui/use-toast';
 import Indicator from '@/components/ui/indicator';
 import { Label } from '@/components/ui/label';
+import { CustomTagSelect } from '@/components/customSelects/CustomTagSelect';
 export const TaskUpdate = ({ task }: { task: Task }) => {
+  const [tags, setTags] = useState<string>(task.tags);
   const [open, setOpen] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
   const handleUpdateTask = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData.entries());
-
+    const data = Object.fromEntries(formData.entries()) as Partial<Task>;
+    data.dueDate && new Date(data.dueDate).toISOString();
     if (!user) return console.log('no user');
-
     const update: Partial<Task> = {
       ...data,
       updatedAt: new Date().toISOString(),
@@ -220,6 +221,20 @@ export const TaskUpdate = ({ task }: { task: Task }) => {
                       </SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+                <div className='form-group'>
+                  <Label htmlFor='newTaskDueDate'>Due Date</Label>
+                  <Input
+                    id='newTaskDueDate'
+                    type='datetime-local'
+                    name='dueDate'
+                    placeholder='due date'
+                    defaultValue={task.dueDate}
+                    min={new Date().toISOString().slice(0, 16)}
+                  />
+                </div>
+                <div className='form-group'>
+                  <CustomTagSelect setTags={setTags} tags={tags} />
                 </div>
                 <div className='form-footer'>
                   <Button type='submit'>Update</Button>
