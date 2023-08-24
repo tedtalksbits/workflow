@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { GoogleCredentials } from '@/providers/authProvider';
 import { Logo } from '@/components/logo/Logo';
+import { Separator } from '@/components/ui/separator';
 
 export const Login = () => {
   const { setUser } = useAuth();
@@ -32,7 +33,7 @@ export const Login = () => {
         className='p-10 border rounded-xl flex flex-col gap-4 max-w-xl mx-auto bg-muted w-full'
         onSubmit={(e) => e.preventDefault()}
       >
-        <div className='form-info flex flex-col gap-2'>
+        <div className='form-info flex flex-col gap-2 text-center'>
           <Logo />
           <div className='mb-4'>
             <h1 className='text-2xl font-bold mb-2'>Log in to your Account</h1>
@@ -41,7 +42,8 @@ export const Login = () => {
             </p>
           </div>
         </div>
-        <Button onClick={handleSignIn} className='bg-foreground'>
+        <Separator />
+        <Button onClick={handleSignIn} className='w-fit mx-auto'>
           <svg
             xmlns='http://www.w3.org/2000/svg'
             viewBox='0 0 24 24'

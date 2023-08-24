@@ -16,7 +16,7 @@ export const DashboardHeader = () => {
   return (
     <header className='border-b  h-[5rem] flex flex-col justify-center'>
       <div className='flex justify-between items-center px-4'>
-        <Logo size={20} />
+        <Logo />
         <Popover>
           <PopoverTrigger>
             <Avatar>
