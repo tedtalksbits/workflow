@@ -38,7 +38,7 @@ function createWindow() {
     display?.workAreaSize || screen.getPrimaryDisplay().bounds;
 
   win = new BrowserWindow({
-    icon: path.join(process.env.PUBLIC, 'electron-vite.svg'),
+    icon: path.join(process.env.PUBLIC, 'icon.svg'),
     width,
     height,
     webPreferences: {
