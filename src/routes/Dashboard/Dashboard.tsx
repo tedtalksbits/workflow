@@ -1,5 +1,4 @@
 import React from 'react';
-import { useAuth } from '@/hooks/useAuth';
 import { ProjectsList } from './Projects/ProjectsList';
 import { Project } from '@/types/projects';
 import { DashboardHeader } from './DashboardHeader';
@@ -10,9 +9,7 @@ export const Dashboard = () => {
   const [projects, setProjects] = React.useState<Project[]>([]);
   const [selectedProjectId, setSelectedProjectId] = React.useState<string>('');
   const [tasks, setTasks] = React.useState<Task[]>([]);
-  const { user } = useAuth();
 
-  if (!user) return null;
   return (
     <div className='flex h-screen'>
       <div className='sidebar h-full border-r w-[25%] max-w-[300px]'>

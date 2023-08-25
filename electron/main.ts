@@ -1,5 +1,7 @@
 import { app, BrowserWindow, screen } from 'electron';
 import path from 'node:path';
+import { connectionListeners } from './db/connectionListener';
+import { userListeners } from './db/userListeners';
 
 // The built directory structure
 //
@@ -21,6 +23,8 @@ const isProd = process.env.NODE_ENV === 'production' || app.isPackaged;
 // 🚧 Use ['ENV_NAME'] avoid vite:define plugin - Vite@2.x
 const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL'];
 
+connectionListeners();
+userListeners();
 function createWindow() {
   let display = null;
   const displays = screen.getAllDisplays();
