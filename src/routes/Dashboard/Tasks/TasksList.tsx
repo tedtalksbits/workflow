@@ -23,6 +23,7 @@ import {
 } from '@/components/ui/popover';
 
 import { Label } from '@radix-ui/react-label';
+import { dTFns } from '@/lib/utils';
 
 type TaskTableProps = {
   tasks: Task[];
@@ -307,9 +308,16 @@ export const TasksList = ({
                   </span>
                 </label>
               </TableCell>
-              <TableCell title={task?.dueDate?.toLocaleDateString()}>
+              <TableCell
+                title={task?.dueDate?.toString()}
+                className={
+                  dTFns.isInThePast(task?.dueDate)
+                    ? 'bg-destructive/5 text-destructive'
+                    : ''
+                }
+              >
                 {task.dueDate &&
-                  dayjsUtils.timeFromNow(task.dueDate.toLocaleDateString())}
+                  dayjsUtils.timeFromNow(task.dueDate.toString())}
               </TableCell>
               <TableCell>
                 <CustomSelect
@@ -333,7 +341,7 @@ export const TasksList = ({
               </TableCell>
               <TableCell>{task.tags}</TableCell>
               <TableCell title={task.createdAt.toISOString()}>
-                {dayjsUtils.timeFromNow(task.createdAt.toISOString())}
+                {dayjsUtils.timeFromNow(task.createdAt.toString())}
               </TableCell>
               <TableCell className='cursor-pointer'>
                 <TaskUpdate

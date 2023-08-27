@@ -52,7 +52,7 @@ export const ProjectsList = ({
             >
               <div>{project.name}</div>
               <div className='text-xs text-foreground/40'>
-                {dayjsUtils.timeFromNow(project.updatedAt.toISOString())}
+                {dayjsUtils.timeFromNow(project.updatedAt.toString())}
               </div>
             </li>
             <div className='pr-4 py-2 opacity-0 group-hover/nav-item:opacity-100 transition-opacity duration-300 ease-in-out'>

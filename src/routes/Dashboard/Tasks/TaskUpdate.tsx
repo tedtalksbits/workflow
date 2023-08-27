@@ -37,6 +37,7 @@ import { useToast } from '@/components/ui/use-toast';
 import Indicator from '@/components/ui/indicator';
 import { Label } from '@/components/ui/label';
 import { CustomTagSelect } from '@/components/customSelects/CustomTagSelect';
+import { dTFns } from '@/lib/utils';
 type TaskUpdateProps = {
   task: Task;
   onMutate: (tasks: Task[]) => void;
@@ -51,6 +52,7 @@ export const TaskUpdate = ({ task, onMutate, projectId }: TaskUpdateProps) => {
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries()) as Partial<Task>;
     if (!data.dueDate) data.dueDate = null;
+    console.log(data.dueDate);
 
     try {
       if (!projectId)
@@ -234,8 +236,7 @@ export const TaskUpdate = ({ task, onMutate, projectId }: TaskUpdateProps) => {
                     type='datetime-local'
                     name='dueDate'
                     placeholder='due date'
-                    defaultValue={task?.dueDate?.toLocaleDateString()}
-                    min={new Date().toISOString().slice(0, 16)}
+                    defaultValue={dTFns.toLocalDateTime(task?.dueDate) || ''}
                   />
                 </div>
                 <div className='form-group'>
