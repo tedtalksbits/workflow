@@ -88,11 +88,12 @@ export const TasksList = ({
     if (!selectedProjectId) return console.log('no project id');
     if (!id) return console.log('no task id');
     try {
-      const res = await window.electron.tasks.update(id, update);
+      await window.electron.tasks.update(id, update);
+      const res = await window.electron.tasks.getByProjectId(selectedProjectId);
       setTasks(res);
       toast({
-        title: 'Task updated',
-        description: 'Task ' + update.title + ' has been updated',
+        title: 'Success!',
+        description: 'Task has been updated',
         variant: 'success',
       });
     } catch (e) {
@@ -331,8 +332,8 @@ export const TasksList = ({
                 />
               </TableCell>
               <TableCell>{task.tags}</TableCell>
-              <TableCell title={task.createdAt.toLocaleDateString()}>
-                {dayjsUtils.timeFromNow(task.createdAt.toLocaleDateString())}
+              <TableCell title={task.createdAt.toISOString()}>
+                {dayjsUtils.timeFromNow(task.createdAt.toISOString())}
               </TableCell>
               <TableCell className='cursor-pointer'>
                 <TaskUpdate

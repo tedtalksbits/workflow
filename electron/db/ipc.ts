@@ -1,3 +1,4 @@
+import { appListeners } from './app/appListeners';
 import { connectionListeners } from './connectionListener';
 import { projectListeners } from './projects/projectsListeners';
 import { tasksListeners } from './tasks/tasksListeners';
@@ -8,4 +9,5 @@ export const setUpIpcListeners = () => {
   userListeners();
   tasksListeners();
   connectionListeners();
+  appListeners();
 };

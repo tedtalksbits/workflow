@@ -1,18 +1,32 @@
 import { Logo } from '@/components/logo/Logo';
 import { ThemeSelect } from '@/components/themeToggle/ThemeSelect';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
-import { signOutWithGoogle } from '@/firebase';
-import { useAuth } from '@/hooks/useAuth';
+import { Separator } from '@/components/ui/separator';
 import { ExitIcon } from '@radix-ui/react-icons';
+import { SystemInfo } from 'electron/db/app/appListeners';
+import { useEffect, useState } from 'react';
 
 export const DashboardHeader = () => {
-  const { user } = useAuth();
+  const [systemInfo, setSystemInfo] = useState<SystemInfo>(
+    JSON.parse(localStorage.getItem('systemInfo') || '{}')
+  );
+
+  useEffect(() => {
+    console.log('systemInfo effect ran');
+    if (!systemInfo) {
+      window.electron.systemInfo.get().then((res) => {
+        localStorage.setItem('systemInfo', JSON.stringify(res));
+        setSystemInfo(res);
+      });
+    }
+  }, [systemInfo]);
+
   return (
     <header className='border-b  h-[5rem] flex flex-col justify-center'>
       <div className='flex justify-between items-center px-4'>
@@ -20,20 +34,29 @@ export const DashboardHeader = () => {
         <Popover>
           <PopoverTrigger>
             <Avatar>
-              <AvatarImage src={user?.photoURL} />
-              <AvatarFallback>{user?.displayName?.charAt(0)}</AvatarFallback>
+              <AvatarFallback>{systemInfo?.user?.charAt(0)}</AvatarFallback>
             </Avatar>
           </PopoverTrigger>
           <PopoverContent className='shadow-lg'>
-            <div className='flex flex-col gap-8'>
+            <div className='flex flex-col'>
               <div className='flex items-center justify-between'>
                 <div>
-                  <p className='text-sm text-foreground'>{user?.displayName}</p>
-                  <p className='text-sm text-foreground/30'>{user?.email}</p>
+                  <p className='text-sm text-foreground'>{systemInfo?.user}</p>
                 </div>
                 <ThemeSelect />
               </div>
-              <Button onClick={async () => signOutWithGoogle()}>
+              <Separator />
+              <div className='flex items-baseline justify-between'>
+                <p className='text-xs text-foreground/30'>Platform:</p>
+                <p className='text-xs text-foreground/50'>
+                  {systemInfo?.platform}
+                </p>
+              </div>
+              <div className='flex items-baseline justify-between'>
+                <p className='text-xs text-foreground/30'>OS:</p>
+                <p className='text-xs text-foreground/50'>{systemInfo?.type}</p>
+              </div>
+              <Button>
                 <ExitIcon className='w-4 h-4 mr-2' />
                 Logout
               </Button>

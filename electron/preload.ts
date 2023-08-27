@@ -2,6 +2,7 @@
 import { Project } from '@/types/projects';
 import { Task } from '@/types/task';
 import { IpcRendererEvent, contextBridge, ipcRenderer } from 'electron';
+import { SystemInfo } from './db/app/appListeners';
 
 const electronHandler = {
   ipcRenderer: {
@@ -48,6 +49,9 @@ const electronHandler = {
     getById: (id: number) =>
       ipcRenderer.invoke('get:taskById', id) as Promise<Task>,
   },
+  systemInfo: {
+    get: () => ipcRenderer.invoke('get:systemInfo') as Promise<SystemInfo>,
+  },
 };
 contextBridge.exposeInMainWorld('electron', electronHandler);
 export type Channels =
@@ -67,7 +71,8 @@ export type Channels =
   | 'add:task'
   | 'update:task'
   | 'delete:task'
-  | 'get:taskById';
+  | 'get:taskById'
+  | 'get:systemInfo';
 
 export type ElectronHandler = typeof electronHandler;
 function domReady(
