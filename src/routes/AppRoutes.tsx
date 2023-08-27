@@ -1,5 +1,5 @@
 import { AppProvider } from '@/providers/app';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthFilter } from './AuthFilter';
 import { Login } from './Auth/Login';
 import { Dashboard } from './Dashboard/Dashboard';
