@@ -2,10 +2,9 @@ export type Project = {
   name: string;
   icon: string;
   description: string;
-  id: string;
+  id: number;
   tags: string;
-  createdAt: string;
-  updatedAt: string;
-  owner: string;
+  createdAt: Date;
+  updatedAt: Date;
   members: string[];
 };

@@ -1,4 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
+import { Project } from '@/types/projects';
+import { Task } from '@/types/task';
 import { IpcRendererEvent, contextBridge, ipcRenderer } from 'electron';
 
 const electronHandler = {
@@ -22,6 +24,30 @@ const electronHandler = {
       return ipcRenderer.invoke(channel, ...args);
     },
   },
+  projects: {
+    get: () => ipcRenderer.invoke('get:projects') as Promise<Project[]>,
+    add: (project: Partial<Project>) =>
+      ipcRenderer.invoke('add:project', project) as Promise<Project[]>,
+    update: (id: number, project: Partial<Project>) =>
+      ipcRenderer.invoke('update:project', id, project) as Promise<Project[]>,
+    delete: (id: number) =>
+      ipcRenderer.invoke('delete:project', id) as Promise<Project[]>,
+    getById: (id: number) =>
+      ipcRenderer.invoke('get:projectById', id) as Promise<Project>,
+  },
+  tasks: {
+    get: () => ipcRenderer.invoke('get:tasks') as Promise<Task[]>,
+    getByProjectId: (id: number) =>
+      ipcRenderer.invoke('get:tasksByProjectId', id) as Promise<Task[]>,
+    add: (projectId: number, task: Partial<Task>) =>
+      ipcRenderer.invoke('add:task', projectId, task) as Promise<Task[]>,
+    update: (id: number, task: Partial<Task>) =>
+      ipcRenderer.invoke('update:task', id, task) as Promise<Task[]>,
+    delete: (id: number) =>
+      ipcRenderer.invoke('delete:task', id) as Promise<Task[]>,
+    getById: (id: number) =>
+      ipcRenderer.invoke('get:taskById', id) as Promise<Task>,
+  },
 };
 contextBridge.exposeInMainWorld('electron', electronHandler);
 export type Channels =
@@ -30,7 +56,19 @@ export type Channels =
   | 'disconnect'
   | 'get:connection'
   | 'get:connection:sync'
-  | 'get:connection:sync:reply';
+  | 'get:connection:sync:reply'
+  | 'get:projects'
+  | 'add:project'
+  | 'update:project'
+  | 'delete:project'
+  | 'get:projectById'
+  | 'get:tasks'
+  | 'get:tasksByProjectId'
+  | 'add:task'
+  | 'update:task'
+  | 'delete:task'
+  | 'get:taskById';
+
 export type ElectronHandler = typeof electronHandler;
 function domReady(
   condition: DocumentReadyState[] = ['complete', 'interactive']

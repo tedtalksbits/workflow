@@ -1,7 +1,6 @@
 import { app, BrowserWindow, screen } from 'electron';
 import path from 'node:path';
-import { connectionListeners } from './db/connectionListener';
-import { userListeners } from './db/userListeners';
+import { setUpIpcListeners } from './db/ipc';
 
 // The built directory structure
 //
@@ -23,8 +22,8 @@ const isProd = process.env.NODE_ENV === 'production' || app.isPackaged;
 // 🚧 Use ['ENV_NAME'] avoid vite:define plugin - Vite@2.x
 const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL'];
 
-connectionListeners();
-userListeners();
+// Set up IPC listeners
+setUpIpcListeners();
 function createWindow() {
   let display = null;
   const displays = screen.getAllDisplays();

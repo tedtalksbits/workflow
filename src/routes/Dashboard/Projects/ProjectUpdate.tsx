@@ -23,62 +23,68 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { Project } from '@/types/projects';
 import { Pencil2Icon } from '@radix-ui/react-icons';
-import { useAuth } from '@/hooks/useAuth';
 import { useState } from 'react';
 import { Zone } from '@/components/zone/Zone';
 import { Label } from '@/components/ui/label';
-import {
-  DeleteProjectProps,
-  UpdateProjectProps,
-  projectApi,
-} from './api/project';
 import { useToast } from '@/components/ui/use-toast';
-export const ProjectUpdate = ({ project }: { project: Project }) => {
+type ProjectUpdateProps = {
+  project: Project;
+  onMutate: (projects: Project[]) => void;
+};
+export const ProjectUpdate = ({ project, onMutate }: ProjectUpdateProps) => {
   const [open, setOpen] = useState(false);
-  const { user } = useAuth();
   const { toast } = useToast();
+
   const handleUpdateProject = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const name = formData.get('name') as string;
     const description = formData.get('description') as string;
-    if (!user) return console.log('no user');
+
     const update: Partial<Project> = {
       name,
       description,
     };
-    const updateRequest: UpdateProjectProps = {
-      id: project.id,
-      update,
-      user,
-      onError: () => console.log('error'),
-      onSuccess: () => {
-        setOpen(false);
-        toast({
-          title: 'Project updated',
-          description: 'Your project has been updated successfully',
-          variant: 'success',
-        });
-      },
-    };
-    projectApi.updateProject(updateRequest);
+    try {
+      const updatedProjects = await window.electron.projects.update(
+        project.id,
+        update
+      );
+      console.log(updatedProjects);
+      onMutate(updatedProjects);
+      toast({
+        title: 'Project updated',
+        description: 'Project ' + project.name + ' has been updated',
+        variant: 'success',
+      });
+      setOpen(false);
+    } catch (e) {
+      const err = e as Error;
+      toast({
+        title: 'Failed to update project',
+        description: err.message,
+        variant: 'destructive',
+      });
+    }
   };
   const handleDeleteProject = async () => {
-    if (!user) return console.log('no user');
-    const deleteRequest: DeleteProjectProps = {
-      id: project.id,
-      user,
-      onError: () => console.log('error'),
-      onSuccess: () => {
-        setOpen(false);
-        toast({
-          title: 'Project deleted',
-          description: 'Your project has been deleted successfully',
-          variant: 'success',
-        });
-      },
-    };
-    projectApi.deleteProject(deleteRequest);
+    try {
+      const res = await window.electron.projects.delete(project.id);
+      onMutate(res);
+      toast({
+        title: 'Project deleted',
+        description: 'Project ' + project.name + ' has been deleted',
+        variant: 'success',
+      });
+      setOpen(false);
+    } catch (e) {
+      const err = e as Error;
+      toast({
+        title: 'Failed to delete project',
+        description: err.message,
+        variant: 'destructive',
+      });
+    }
   };
   return (
     <div>

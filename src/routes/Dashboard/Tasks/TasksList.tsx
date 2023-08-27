@@ -6,13 +6,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useAuth } from '@/hooks/useAuth';
 import { Task, TaskStatus, priorityColors, statusColors } from '@/types/task';
 import { MixerHorizontalIcon, TableIcon } from '@radix-ui/react-icons';
 import { useEffect, useRef, useState } from 'react';
 import { NewTaskDialog } from './NewTask';
 import { TaskUpdate } from './TaskUpdate';
-import { GetTasksProps, taskApi } from './api/task';
 import { useToast } from '@/components/ui/use-toast';
 import { CustomSelect } from '@/components/customSelects/CustomSelect';
 import { dayjsUtils } from '@/utils/dayjs';
@@ -29,7 +27,7 @@ import { Label } from '@radix-ui/react-label';
 type TaskTableProps = {
   tasks: Task[];
   setTasks: (tasks: Task[]) => void;
-  selectedProjectId: string;
+  selectedProjectId: number | null;
 };
 
 export const TasksList = ({
@@ -37,7 +35,6 @@ export const TasksList = ({
   selectedProjectId,
   setTasks,
 }: TaskTableProps) => {
-  const { user } = useAuth();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState({
     key: '',
@@ -48,27 +45,24 @@ export const TasksList = ({
   const taskSearchInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!user) throw new Error('User is not defined');
     if (!selectedProjectId) return;
-
-    const getTasksObj: GetTasksProps = {
-      projectId: selectedProjectId,
-      user,
-      onError: () => {
+    window.electron.tasks.getByProjectId(selectedProjectId).then(
+      (res) => {
+        setTasks(res);
+      },
+      (err) => {
         toast({
           title: 'Something went wrong',
-          description: 'Tasks were not fetched.',
+          description: 'Tasks could not be fetched.' + err.message,
           variant: 'destructive',
         });
-      },
-      onSuccess(task) {
-        setTasks(task);
-      },
-    };
-    taskApi.getTasks(getTasksObj);
-  }, [setTasks, selectedProjectId, user, toast]);
+      }
+    );
+  }, [setTasks, selectedProjectId, toast]);
 
-  const filteredTasks = tasks.filter((task) => {
+  if (!tasks) return <div>No Tasks</div>;
+
+  const filteredTasks = tasks?.filter((task) => {
     const priorityMatch =
       searchTerm.key === 'priority' &&
       task.priority.toLowerCase() === searchTerm.value.toLowerCase();
@@ -90,28 +84,26 @@ export const TasksList = ({
     return priorityMatch || titleMatch || statusMatch || anyMatch || noMatch;
   });
 
-  const handleUpdateTask = async (update: Partial<Task>) => {
-    if (!user) return console.log('no user');
-    if (update.id === undefined) return console.log('no id');
-    const taskUpdate = {
-      id: update.id,
-      update,
-      user,
-      onSuccess: () => {
-        toast({
-          title: 'Task updated',
-          description: 'Task was successfully updated.',
-          variant: 'success',
-        });
-      },
-      onError: () =>
-        toast({
-          title: 'Something went wrong',
-          description: 'Task was not updated.',
-          variant: 'destructive',
-        }),
-    };
-    taskApi.updateTask(taskUpdate);
+  const handleUpdateTask = async (id: number, update: Partial<Task>) => {
+    if (!selectedProjectId) return console.log('no project id');
+    if (!id) return console.log('no task id');
+    try {
+      const res = await window.electron.tasks.update(id, update);
+      setTasks(res);
+      toast({
+        title: 'Task updated',
+        description: 'Task ' + update.title + ' has been updated',
+        variant: 'success',
+      });
+    } catch (e) {
+      console.log(e);
+      const err = e as Error;
+      toast({
+        title: 'Failed to update task',
+        description: err.message,
+        variant: 'destructive',
+      });
+    }
   };
 
   return (
@@ -124,7 +116,7 @@ export const TasksList = ({
           </h2>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant='secondary'>
+              <Button variant='secondary' disabled={filteredTasks.length === 0}>
                 <MixerHorizontalIcon className='w-5 h-5 mr-2' />
                 {isFiltered
                   ? `${searchTerm.key}:${searchTerm.value}`
@@ -257,6 +249,7 @@ export const TasksList = ({
           <div className='flex-1'>
             <Input
               placeholder='Search tasks'
+              disabled={tasks.length === 0}
               onChange={(e) =>
                 setSearchTerm({
                   key: '*',
@@ -269,6 +262,7 @@ export const TasksList = ({
           <NewTaskDialog
             projectId={selectedProjectId}
             key={selectedProjectId}
+            onMutate={setTasks}
           />
         </div>
       </div>
@@ -295,15 +289,14 @@ export const TasksList = ({
               }`}
             >
               <TableCell>
-                <label htmlFor={task.id} title={task.title}>
+                <label htmlFor={task.id.toString()} title={task.title}>
                   <input
-                    id={task.id}
+                    id={task.id.toString()}
                     type='checkbox'
                     className='peer checkbox-fancy'
                     checked={task.status === 'done'}
                     onChange={() => {
-                      handleUpdateTask({
-                        id: task.id,
+                      handleUpdateTask(task.id, {
                         status: task.status === 'done' ? 'todo' : 'done',
                       });
                     }}
@@ -313,15 +306,16 @@ export const TasksList = ({
                   </span>
                 </label>
               </TableCell>
-              <TableCell title={task.dueDate}>
-                {task.dueDate && dayjsUtils.timeFromNow(task.dueDate)}
+              <TableCell title={task?.dueDate?.toLocaleDateString()}>
+                {task.dueDate &&
+                  dayjsUtils.timeFromNow(task.dueDate.toLocaleDateString())}
               </TableCell>
               <TableCell>
                 <CustomSelect
                   options={['todo', 'inProgress', 'done'] as TaskStatus[]}
                   selected={task.status}
                   onChange={(value) => {
-                    handleUpdateTask({ id: task.id, status: value });
+                    handleUpdateTask(task.id, { status: value });
                   }}
                   indicatorColors={statusColors}
                 />
@@ -331,17 +325,22 @@ export const TasksList = ({
                   options={['low', 'medium', 'high']}
                   selected={task.priority}
                   onChange={(value) => {
-                    handleUpdateTask({ id: task.id, priority: value });
+                    handleUpdateTask(task.id, { priority: value });
                   }}
                   indicatorColors={priorityColors}
                 />
               </TableCell>
               <TableCell>{task.tags}</TableCell>
-              <TableCell title={task.createdAt}>
-                {dayjsUtils.timeFromNow(task.createdAt)}
+              <TableCell title={task.createdAt.toLocaleDateString()}>
+                {dayjsUtils.timeFromNow(task.createdAt.toLocaleDateString())}
               </TableCell>
               <TableCell className='cursor-pointer'>
-                <TaskUpdate task={task} key={task.id} />
+                <TaskUpdate
+                  task={task}
+                  key={task.id}
+                  onMutate={setTasks}
+                  projectId={selectedProjectId}
+                />
               </TableCell>
             </TableRow>
           ))}

@@ -14,7 +14,6 @@ import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowRightIcon } from '@radix-ui/react-icons';
-import { useAuth } from '@/hooks/useAuth';
 import { useState } from 'react';
 import { Task, priorityColors, statusColors } from '@/types/task';
 import {
@@ -34,68 +33,74 @@ import {
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Zone } from '@/components/zone/Zone';
-import { DeleteTaskProps, taskApi } from './api/task';
 import { useToast } from '@/components/ui/use-toast';
 import Indicator from '@/components/ui/indicator';
 import { Label } from '@/components/ui/label';
 import { CustomTagSelect } from '@/components/customSelects/CustomTagSelect';
-export const TaskUpdate = ({ task }: { task: Task }) => {
+type TaskUpdateProps = {
+  task: Task;
+  onMutate: (tasks: Task[]) => void;
+  projectId: number | null;
+};
+export const TaskUpdate = ({ task, onMutate, projectId }: TaskUpdateProps) => {
   const [tags, setTags] = useState<string>(task.tags);
   const [open, setOpen] = useState(false);
-  const { user } = useAuth();
   const { toast } = useToast();
   const handleUpdateTask = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries()) as Partial<Task>;
-    data.dueDate && new Date(data.dueDate).toISOString();
-    if (!user) return console.log('no user');
-    const update: Partial<Task> = {
-      ...data,
-      updatedAt: new Date().toISOString(),
-    };
-    const taskUpdate = {
-      id: task.id,
-      update,
-      user,
-      onSuccess: () => {
-        setOpen(false);
-        toast({
-          title: 'Task updated',
-          description: 'Task was successfully updated.',
-          variant: 'success',
-        });
-      },
-      onError: () =>
-        toast({
-          title: 'Something went wrong',
-          description: 'Task was not updated.',
+    if (!data.dueDate) data.dueDate = null;
+
+    try {
+      if (!projectId)
+        return toast({
+          title: 'Failed to update task',
+          description: 'No project id',
           variant: 'destructive',
-        }),
-    };
-    taskApi.updateTask(taskUpdate);
+        });
+      await window.electron.tasks.update(task.id, data);
+      const updatedTasks = await window.electron.tasks.getByProjectId(
+        projectId
+      );
+      console.log(updatedTasks);
+      onMutate(updatedTasks);
+      toast({
+        title: 'Task updated',
+        description: 'Task ' + task.title + ' has been updated',
+        variant: 'success',
+      });
+      setOpen(false);
+    } catch (e) {
+      console.log(e);
+      const err = e as Error;
+      toast({
+        title: 'Failed to update task',
+        description: err.message,
+        variant: 'destructive',
+      });
+    }
   };
   const handleDeleteTask = async () => {
-    if (!user) return console.log('no user');
-    const taskDelete: DeleteTaskProps = {
-      id: task.id,
-      user,
-      onSuccess: () => {
-        setOpen(false);
-        toast({
-          title: 'Task deleted',
-          description: 'Task was successfully deleted.',
-          variant: 'success',
-        });
-      },
-      onError: () =>
-        toast({
-          title: 'Something went wrong',
-          description: 'Task was not deleted.',
-          variant: 'destructive',
-        }),
-    };
-    taskApi.deleteTask(taskDelete);
+    try {
+      if (!projectId)
+        return toast({ title: 'No project id', variant: 'destructive' });
+      await window.electron.tasks.delete(task.id);
+      const res = await window.electron.tasks.getByProjectId(projectId);
+      onMutate(res);
+      toast({
+        title: 'Task deleted',
+        description: 'Task ' + task.title + ' has been deleted',
+        variant: 'success',
+      });
+    } catch (e) {
+      const err = e as Error;
+      toast({
+        title: 'Failed to delete task',
+        description: err.message,
+        variant: 'destructive',
+      });
+    }
   };
   return (
     <div>
@@ -229,7 +234,7 @@ export const TaskUpdate = ({ task }: { task: Task }) => {
                     type='datetime-local'
                     name='dueDate'
                     placeholder='due date'
-                    defaultValue={task.dueDate}
+                    defaultValue={task?.dueDate?.toLocaleDateString()}
                     min={new Date().toISOString().slice(0, 16)}
                   />
                 </div>

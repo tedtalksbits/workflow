@@ -1,28 +1,34 @@
-import { Connection } from 'electron/db/connection';
+import { Connection } from 'electron/db/types/connection';
 import React, { createContext, useEffect, useState } from 'react';
 
 type ConfigContextType = {
   config: Connection | null;
+  setConfig: React.Dispatch<React.SetStateAction<Connection | null>>;
 };
 
 export const ConfigContext = createContext<ConfigContextType>({
   config: null,
+  setConfig: () => console.warn('no config'),
 });
 
 export const ConfigProvider = ({ children }: { children: React.ReactNode }) => {
-  const [config, setConfig] = useState<Connection | null>(null);
+  const [config, setConfig] = useState<Connection | null>(
+    localStorage.getItem('config')
+      ? JSON.parse(localStorage.getItem('config') || '')
+      : null
+  );
 
   useEffect(() => {
-    window.electron.ipcRenderer.sendMessage('get:connection:sync');
-    window.electron.ipcRenderer.once('get:connection:sync:reply', (data) => {
-      console.log(data);
-      console.log('get:connection:sync:reply');
-      setConfig(data as Connection);
-    });
+    const getConfig = async () => {
+      const res = await window.electron.ipcRenderer.invoke('get:connection');
+      localStorage.setItem('config', JSON.stringify(res));
+      setConfig(res);
+    };
+    getConfig();
   }, []);
 
   return (
-    <ConfigContext.Provider value={{ config }}>
+    <ConfigContext.Provider value={{ config, setConfig }}>
       {children}
     </ConfigContext.Provider>
   );

@@ -1,17 +1,13 @@
-import { FileTextIcon } from '@radix-ui/react-icons';
 import { Input } from '@/components/ui/input';
 import { Project } from '@/types/projects';
-import { NewProjectDialog } from './NewProject';
 import { useEffect, useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
 import { ProjectUpdate } from './ProjectUpdate';
-import { GetProjectsProps, projectApi } from './api/project';
 import { dayjsUtils } from '@/utils/dayjs';
 type NavbarProps = {
   projects: Project[];
-  onSelectProjectId: (projectId: string) => void;
+  onSelectProjectId: (projectId: number) => void;
   setProjects: (projects: Project[]) => void;
-  selectedProjectId: string | null;
+  selectedProjectId: number | null;
 };
 
 export const ProjectsList = ({
@@ -20,41 +16,24 @@ export const ProjectsList = ({
   onSelectProjectId,
   selectedProjectId,
 }: NavbarProps) => {
-  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   useEffect(() => {
-    if (!user) {
-      throw new Error('User not found');
-    }
-    const getProjectsRequest: GetProjectsProps = {
-      user,
-      onError: () => console.log('error'),
-      onSuccess: (projects) => {
-        setProjects(projects);
-      },
-    };
-    projectApi.getProjects(getProjectsRequest);
-  }, [user, setProjects]);
+    window.electron.projects.get().then((res) => {
+      setProjects(res);
+    });
+  }, [setProjects]);
 
   const filteredProjects = projects.filter((project) =>
     project.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
   return (
-    <div className='projects-container'>
-      <header className='border-b  h-[5rem] flex flex-col justify-center'>
-        <div className='flex item-center justify-between px-4'>
-          <h2 className='text-xl font-bold  flex items-center gap-2'>
-            <FileTextIcon className='w-5 h-5' />
-            Projects
-          </h2>
-          <NewProjectDialog />
-        </div>
-      </header>
+    <>
       <div className='px-2 my-4'>
         <Input
           placeholder='Search projects'
           className='p-6'
           onChange={(e) => setSearchQuery(e.target.value)}
+          disabled={projects.length === 0}
         />
       </div>
       <ul className='mt-4'>
@@ -73,15 +52,15 @@ export const ProjectsList = ({
             >
               <div>{project.name}</div>
               <div className='text-xs text-foreground/40'>
-                {dayjsUtils.timeFromNow(project.updatedAt)}
+                {dayjsUtils.timeFromNow(project.updatedAt.toLocaleDateString())}
               </div>
             </li>
             <div className='pr-4 py-2 opacity-0 group-hover/nav-item:opacity-100 transition-opacity duration-300 ease-in-out'>
-              <ProjectUpdate project={project} />
+              <ProjectUpdate project={project} onMutate={setProjects} />
             </div>
           </div>
         ))}
       </ul>
-    </div>
+    </>
   );
 };

@@ -1,8 +1,10 @@
 import { app, ipcMain } from 'electron';
 import fs from 'fs/promises';
 import path from 'node:path';
-import { Connection } from './connection';
+import { Connection } from './types/connection';
+import { init } from './config';
 export const localPath = path.join(app.getPath('userData'));
+
 export const connectionListeners = () => {
   ipcMain.handle('connect', async (_event, arg: Connection) => {
     const dbConfigPath = path.join(localPath, 'dbConfig.json');
@@ -10,10 +12,10 @@ export const connectionListeners = () => {
       await fs.writeFile(dbConfigPath, JSON.stringify(arg));
       console.log('db config saved');
       console.log(path.join(localPath, 'dbConfig.json'));
-      return {
-        success: true,
-        message: 'db config saved',
-      };
+
+      const res = await init();
+      console.log(res);
+      return res;
     } catch (e) {
       console.log(e);
       const error = e as Error;
@@ -23,7 +25,7 @@ export const connectionListeners = () => {
       };
     }
   });
-  ipcMain.handle('disconnect', async (_event, _arg) => {
+  ipcMain.handle('disconnect', async () => {
     const dbConfigPath = path.join(localPath, 'dbConfig.json');
     try {
       await fs.unlink(dbConfigPath);
@@ -42,7 +44,7 @@ export const connectionListeners = () => {
     }
   });
 
-  ipcMain.handle('get:connection', async (_event, _arg) => {
+  ipcMain.handle('get:connection', async () => {
     const dbConfigPath = path.join(localPath, 'dbConfig.json');
     try {
       const dbConfig = await fs.readFile(dbConfigPath, 'utf-8');
@@ -57,23 +59,6 @@ export const connectionListeners = () => {
     } catch (e) {
       console.log(e);
       return null;
-    }
-  });
-  ipcMain.on('get:connection:sync', async (event, _arg) => {
-    const dbConfigPath = path.join(localPath, 'dbConfig.json');
-    try {
-      const dbConfig = await fs.readFile(dbConfigPath, 'utf-8');
-      const connection = JSON.parse(dbConfig) as Connection;
-      // return connection without password
-      event.reply('get:connection:sync:reply', {
-        host: connection.host,
-        port: connection.port,
-        user: connection.user,
-        database: connection.database,
-      });
-    } catch (e) {
-      console.log(e);
-      event.reply('get:connection:sync:reply', null);
     }
   });
 };

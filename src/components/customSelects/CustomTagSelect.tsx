@@ -23,7 +23,7 @@ export const CustomTagSelect = ({
   commonTags = commonTagsArr,
 }: CustomTagSelectProps) => {
   const tagInput = useRef<HTMLInputElement>(null);
-  if (!tags) setTags('');
+  // if (!tags) setTags('');
   const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTags(e.target.value);
   };

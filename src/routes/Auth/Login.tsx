@@ -6,10 +6,14 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
-import { Connection } from 'electron/db/connection';
+import { Connection } from 'electron/db/types/connection';
+import { useToast } from '@/components/ui/use-toast';
+import { useConfig } from '@/hooks/useConfig';
 
 export const Login = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const { setConfig } = useConfig();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState<Connection>({
     port: 3306,
@@ -21,14 +25,28 @@ export const Login = () => {
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    try {
-      const res = await window.electron.ipcRenderer.invoke('connect', formData);
-      if (res) {
-        console.log(res);
-      }
-    } catch (error) {
-      console.log(error);
-      alert('uh oh! Not able to login');
+    const res = await window.electron.ipcRenderer.invoke('connect', formData);
+    if (res.success) {
+      console.log(res);
+      localStorage.setItem('config', JSON.stringify(formData));
+      navigate('/');
+      toast({
+        title: 'Connected to database',
+        description:
+          'You are now connected to your database ' + formData.database,
+      });
+
+      const connection = await window.electron.ipcRenderer.invoke(
+        'get:connection'
+      );
+      setConfig(connection);
+    } else {
+      console.log(res);
+      toast({
+        title: 'Failed to connect to database',
+        description: res.message,
+        variant: 'destructive',
+      });
     }
   };
   function handleGetUsersTest(): void {

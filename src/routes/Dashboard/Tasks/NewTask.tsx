@@ -16,59 +16,47 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { useAuth } from '@/hooks/useAuth';
 import { Task, priorityColors } from '@/types/task';
 import { useState } from 'react';
-import { AddTaskProps, taskApi } from './api/task';
 import { Label } from '@/components/ui/label';
 import Indicator from '@/components/ui/indicator';
 import { CustomTagSelect } from '@/components/customSelects/CustomTagSelect';
-export const NewTaskDialog = ({ projectId }: { projectId: string }) => {
+import { useToast } from '@/components/ui/use-toast';
+type NewTaskDialogProps = {
+  onMutate: (tasks: Task[]) => void;
+  projectId: number | null;
+};
+export const NewTaskDialog = ({ projectId, onMutate }: NewTaskDialogProps) => {
   const [open, setOpen] = useState(false);
-  const { user } = useAuth();
   const [tags, setTags] = useState<string>('');
+  const { toast } = useToast();
   const handleAddTask = async (e: React.FormEvent<HTMLFormElement>) => {
-    if (!user) return console.log('no user');
     if (!projectId) return console.log('no project id');
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries()) as Partial<Task>;
-
     data.dueDate && new Date(data.dueDate).toISOString();
-
-    const task: Partial<Task> = {
-      title: data.title,
-      description: data.description,
-      status: 'todo',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      priority: data.priority,
-      assignee: data.assignee,
-      dueDate: data.dueDate,
-      tags: data.tags,
-      projectId,
-    };
-    console.log(task.projectId);
-    taskApi.validateTask(task);
-    const addTaskRequest: AddTaskProps = {
-      task,
-      projectId,
-      user,
-      onError,
-      onSuccess,
-    };
-
-    taskApi.addTask(addTaskRequest);
+    try {
+      await window.electron.tasks.add(projectId, data);
+      const tasks = await window.electron.tasks.getByProjectId(projectId);
+      onMutate(tasks);
+      toast({
+        title: 'Task added',
+        description: 'Task ' + data.title + ' has been added',
+        variant: 'success',
+      });
+      setOpen(false);
+    } catch (e) {
+      console.log(e);
+      const err = e as Error;
+      toast({
+        title: 'Failed to add task',
+        description: err.message,
+        variant: 'destructive',
+      });
+    }
   };
-
-  const onError = () => {
-    console.log('error');
-  };
-  const onSuccess = () => {
-    setOpen(false);
-  };
-
   return (
     <Dialog open={open} onOpenChange={() => setOpen(!open)}>
       <DialogTrigger asChild>

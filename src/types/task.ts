@@ -1,15 +1,14 @@
 export type Task = {
-  id: string;
+  id: number;
   title: string;
   description: string;
   status: TaskStatus;
   priority: TaskPriority;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
   tags: string;
-  owner: string;
   assignee: string;
-  dueDate: string;
+  dueDate: Date | null;
   projectId: string;
 };
 
