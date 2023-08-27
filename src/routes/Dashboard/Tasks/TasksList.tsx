@@ -311,7 +311,7 @@ export const TasksList = ({
               <TableCell
                 title={task?.dueDate?.toString()}
                 className={
-                  dTFns.isInThePast(task?.dueDate)
+                  dTFns.isInThePast(task?.dueDate) && task.status !== 'done'
                     ? 'bg-destructive/5 text-destructive'
                     : ''
                 }
