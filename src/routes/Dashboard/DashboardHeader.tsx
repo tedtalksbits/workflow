@@ -8,18 +8,20 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
-import { ExitIcon } from '@radix-ui/react-icons';
+import { GearIcon } from '@radix-ui/react-icons';
 import { SystemInfo } from 'electron/db/app/appListeners';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export const DashboardHeader = () => {
+  const navigate = useNavigate();
   const [systemInfo, setSystemInfo] = useState<SystemInfo>(
     JSON.parse(localStorage.getItem('systemInfo') || '{}')
   );
 
   useEffect(() => {
     console.log('systemInfo effect ran');
-    if (!systemInfo) {
+    if (!systemInfo.hostname) {
       window.electron.systemInfo.get().then((res) => {
         localStorage.setItem('systemInfo', JSON.stringify(res));
         setSystemInfo(res);
@@ -56,9 +58,9 @@ export const DashboardHeader = () => {
                 <p className='text-xs text-foreground/30'>OS:</p>
                 <p className='text-xs text-foreground/50'>{systemInfo?.type}</p>
               </div>
-              <Button>
-                <ExitIcon className='w-4 h-4 mr-2' />
-                Logout
+              <Button onClick={() => navigate('/login')}>
+                <GearIcon className='w-4 h-4 mr-2' />
+                Change config
               </Button>
             </div>
           </PopoverContent>

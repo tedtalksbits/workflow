@@ -11,9 +11,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Project } from '@/types/projects';
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { FileTextIcon } from '@radix-ui/react-icons';
+import { useShortcuts } from '@/hooks/useShortcuts';
+import { Kdb } from '@/components/ui/kdb';
 type NewProjectDialogProps = {
   projects: Project[];
   onMutate: (projects: Project[]) => void;
@@ -50,6 +52,14 @@ export const NewProjectDialog = ({ onMutate }: NewProjectDialogProps) => {
       });
     }
   };
+
+  const handleNewProjectShortcut = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'p' && e.ctrlKey) {
+      setOpen(true);
+    }
+  }, []);
+
+  useShortcuts(handleNewProjectShortcut);
   return (
     <div>
       <header className='border-b  h-[5rem] flex flex-col justify-center'>
@@ -60,8 +70,14 @@ export const NewProjectDialog = ({ onMutate }: NewProjectDialogProps) => {
           </h2>
           <Dialog open={open} onOpenChange={() => setOpen(!open)}>
             <DialogTrigger asChild>
-              <Button variant='default' className='w-fit h-fit p-2'>
-                New Project
+              <Button
+                variant='default'
+                className='w-fit h-fit p-2 whitespace-nowrap'
+              >
+                <span>+ Project</span>
+                <Kdb className='ml-2'>
+                  <span>⌘</span>p
+                </Kdb>
               </Button>
             </DialogTrigger>
             <DialogContent>

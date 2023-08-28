@@ -17,11 +17,13 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Task, priorityColors } from '@/types/task';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Label } from '@/components/ui/label';
 import Indicator from '@/components/ui/indicator';
 import { CustomTagSelect } from '@/components/customSelects/CustomTagSelect';
 import { useToast } from '@/components/ui/use-toast';
+import { useShortcuts } from '@/hooks/useShortcuts';
+import { Kdb } from '@/components/ui/kdb';
 type NewTaskDialogProps = {
   onMutate: (tasks: Task[]) => void;
   projectId: number | null;
@@ -31,7 +33,7 @@ export const NewTaskDialog = ({ projectId, onMutate }: NewTaskDialogProps) => {
   const [tags, setTags] = useState<string>('');
   const { toast } = useToast();
   const handleAddTask = async (e: React.FormEvent<HTMLFormElement>) => {
-    if (!projectId) return console.log('no project id');
+    if (!projectId) return;
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
@@ -57,10 +59,42 @@ export const NewTaskDialog = ({ projectId, onMutate }: NewTaskDialogProps) => {
       });
     }
   };
+
+  // useEffect(() => {
+  //   console.log('new task dialog effect ran');
+  //   const handleShortcutOpen = (e: KeyboardEvent) => {
+  //     if (e.key === 'n' && e.ctrlKey) {
+  //       e.preventDefault();
+  //       setOpen(true);
+  //     }
+  //   };
+  //   window.addEventListener('keydown', handleShortcutOpen);
+  //   return () => {
+  //     window.removeEventListener('keydown', handleShortcutOpen);
+  //   };
+  // }, []);
+
+  const handleShortcutOpen = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === 'n' && e.ctrlKey) {
+        e.preventDefault();
+        setOpen(true);
+      }
+    },
+    [setOpen]
+  );
+
+  useShortcuts(handleShortcutOpen);
+
   return (
     <Dialog open={open} onOpenChange={() => setOpen(!open)}>
       <DialogTrigger asChild>
-        <Button className='w-fit h-fit p-2'>New Task</Button>
+        <Button className='w-fit h-fit p-2'>
+          <span>+ Task</span>
+          <Kdb className='ml-2'>
+            <span>⌘</span>n
+          </Kdb>
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

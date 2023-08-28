@@ -1,6 +1,20 @@
-import { ConfigContext } from '@/providers/configProvider';
-import { useContext } from 'react';
+import { Connection } from 'electron/db/types/connection';
+import { useCallback, useEffect } from 'react';
 
-export const useConfig = () => {
-  return useContext(ConfigContext);
+type UseConfig = (callback: (config: Connection) => void) => void;
+export const useConfig: UseConfig = (callback) => {
+  const getConfigCallback = useCallback(async () => {
+    const res = (await window.electron.ipcRenderer.invoke(
+      'get:connection'
+    )) as Connection;
+    localStorage.setItem('config', JSON.stringify(res));
+    callback(res);
+  }, [callback]);
+
+  useEffect(() => {
+    console.log('config effect ran');
+    getConfigCallback();
+  }, [getConfigCallback]);
 };
+
+export default useConfig;

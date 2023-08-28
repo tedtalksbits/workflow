@@ -24,6 +24,8 @@ import {
 
 import { Label } from '@radix-ui/react-label';
 import { dTFns } from '@/lib/utils';
+import { useShortcuts } from '@/hooks/useShortcuts';
+import { Kdb } from '@/components/ui/kdb';
 
 type TaskTableProps = {
   tasks: Task[];
@@ -59,8 +61,19 @@ export const TasksList = ({
         });
       }
     );
-  }, [setTasks, selectedProjectId, toast]);
 
+    return () => {
+      setTasks([]);
+    };
+  }, [setTasks, selectedProjectId, toast]);
+  const handleNewTaskSearchShortcut = (e: KeyboardEvent) => {
+    if (e.key === 't' && e.ctrlKey) {
+      e.preventDefault();
+      taskSearchInput.current?.focus();
+    }
+  };
+
+  useShortcuts(handleNewTaskSearchShortcut);
   if (!tasks) return <div>No Tasks</div>;
 
   const filteredTasks = tasks?.filter((task) => {
@@ -248,7 +261,7 @@ export const TasksList = ({
           )}
         </div>
         <div className='flex items-center gap-2'>
-          <div className='flex-1'>
+          <div className='flex-1 relative'>
             <Input
               placeholder='Search tasks'
               disabled={tasks.length === 0}
@@ -260,6 +273,9 @@ export const TasksList = ({
               }
               ref={taskSearchInput}
             />
+            <Kdb className='absolute right-1 top-2 flex items-center justify-center bg-foreground/10'>
+              <span>⌘</span>t
+            </Kdb>
           </div>
           <NewTaskDialog
             projectId={selectedProjectId}

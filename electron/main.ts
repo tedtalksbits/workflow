@@ -1,4 +1,4 @@
-import { app, BrowserWindow, screen } from 'electron';
+import { app, BrowserWindow, screen, globalShortcut } from 'electron';
 import path from 'node:path';
 import { setUpIpcListeners } from './db/ipc';
 
@@ -24,6 +24,7 @@ const VITE_DEV_SERVER_URL = process.env['VITE_DEV_SERVER_URL'];
 
 // Set up IPC listeners
 setUpIpcListeners();
+
 function createWindow() {
   let display = null;
   const displays = screen.getAllDisplays();
@@ -57,7 +58,7 @@ function createWindow() {
 
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {
-    win?.webContents.send('main-process-message', new Date().toLocaleString());
+    win?.webContents.send('main-process-message', true);
   });
 
   if (VITE_DEV_SERVER_URL) {
@@ -66,6 +67,14 @@ function createWindow() {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(process.env.DIST, 'index.html'));
   }
+
+  globalShortcut.register('CommandOrControl+Shift+T', () => {
+    win?.webContents.send('shortcut:newTask', 'newTask');
+  });
+
+  win?.webContents.on('did-finish-load', () => {
+    win?.webContents.send('app-loaded');
+  });
 }
 
 app.on('window-all-closed', () => {

@@ -24,8 +24,8 @@ type PriorityColors = {
 
 export const statusColors: StatusColors = {
   done: 'bg-green-500/40',
-  inProgress: 'bg-gray-500/40',
-  todo: 'bg-primary/40',
+  inProgress: 'bg-primary/40',
+  todo: 'bg-foreground/40',
 };
 export const priorityColors: PriorityColors = {
   low: 'bg-green-500/40',

@@ -4,24 +4,36 @@ import { Logo } from '@/components/logo/Logo';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons';
-import { useState } from 'react';
+import {
+  EyeClosedIcon,
+  EyeOpenIcon,
+  LockClosedIcon,
+} from '@radix-ui/react-icons';
+import { useCallback, useState } from 'react';
 import { Connection } from 'electron/db/types/connection';
 import { useToast } from '@/components/ui/use-toast';
-import { useConfig } from '@/hooks/useConfig';
+import useConfig from '@/hooks/useConfig';
 
 export const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { setConfig } = useConfig();
   const [showPassword, setShowPassword] = useState(false);
+  const [config, setConfig] = useState<Connection | null>(null);
   const [formData, setFormData] = useState<Connection>({
     port: 3306,
-    database: 'test',
-    host: 'localhost',
+    database: '',
+    host: '',
     password: '',
-    user: 'root',
+    user: '',
   });
+
+  const handleConfigChange = useCallback((config: Connection) => {
+    console.log('config change effect ran');
+    setConfig(config);
+    setFormData(config);
+  }, []);
+
+  useConfig(handleConfigChange);
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -49,11 +61,6 @@ export const Login = () => {
       });
     }
   };
-  function handleGetUsersTest(): void {
-    window.electron.ipcRenderer.invoke('get:users').then((result) => {
-      console.log(result);
-    });
-  }
 
   return (
     <div className='h-[80vh] flex justify-center items-center flex-col'>
@@ -63,18 +70,21 @@ export const Login = () => {
       >
         <div className='form-info flex flex-col gap-2 text-center'>
           <Logo />
-          <div className='mb-4'>
-            <h1 className='text-2xl font-bold mb-2'>
-              Connect Your MySQL Database
-            </h1>
+          <div className='my-8'>
+            <div className='flex gap-1 items-start justify-center'>
+              <span>
+                <LockClosedIcon className='inline-block h-6 w-6' />
+              </span>
+              <h1 className='text-2xl font-bold mb-2'>
+                Connect Your MySQL Database
+              </h1>
+            </div>
             <p className='text-foreground/40 text-xs'>
-              Your database credentials are stored locally on your machine and
-              never sent to our servers.
+              Your database credentials are stored locally on your machine.
             </p>
           </div>
         </div>
         <Separator />
-
         <div className='flex flex-row items-center justify-between gap-2'>
           <div className='form-group flex-1'>
             <Label htmlFor='hostname'>Hostname</Label>
@@ -121,7 +131,7 @@ export const Login = () => {
               type={showPassword ? 'text' : 'password'}
               id='password'
               placeholder='your password'
-              value={formData.password}
+              value={formData.password || ''}
               onChange={(e) => {
                 setFormData({ ...formData, password: e.target.value });
               }}
@@ -152,11 +162,22 @@ export const Login = () => {
             }}
           />
         </div>
-        <Button type='submit' className='w-fit mx-auto'>
-          Connect
-        </Button>
+        <div className='form-footer'>
+          <div className='flex justify-between items-center'>
+            {config && (
+              <Button variant='outline' onClick={() => navigate('/')}>
+                Keep Current Config
+              </Button>
+            )}
+            <Button
+              type='submit'
+              disabled={config?.database === formData.database}
+            >
+              Connect
+            </Button>
+          </div>
+        </div>
       </form>
-      <Button onClick={handleGetUsersTest}>get users test</Button>
     </div>
   );
 };

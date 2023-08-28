@@ -29,7 +29,7 @@ export const CustomSelect = <T extends string | number>({
         <div
           className={
             indicatorColors?.[selected] +
-            ' px-2 py-[.15rem] rounded-full text-[.7rem] border-none'
+            ' px-2 py-[.15rem] rounded-full text-[.7rem] border-none whitespace-nowrap'
           }
         >
           <Indicator className={indicatorColors?.[selected]} />

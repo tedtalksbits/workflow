@@ -72,7 +72,8 @@ export type Channels =
   | 'update:task'
   | 'delete:task'
   | 'get:taskById'
-  | 'get:systemInfo';
+  | 'get:systemInfo'
+  | 'shortcut:newTask';
 
 export type ElectronHandler = typeof electronHandler;
 function domReady(
