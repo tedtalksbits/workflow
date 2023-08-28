@@ -40,27 +40,29 @@ export const DashboardHeader = () => {
             </Avatar>
           </PopoverTrigger>
           <PopoverContent className='shadow-lg'>
-            <div className='flex flex-col'>
+            <div className='flex flex-col gap-4'>
               <div className='flex items-center justify-between'>
-                <div>
-                  <p className='text-sm text-foreground'>{systemInfo?.user}</p>
-                </div>
+                <p className='text-sm text-foreground'>{systemInfo?.user}</p>
                 <ThemeSelect />
               </div>
               <Separator />
-              <div className='flex items-baseline justify-between'>
-                <p className='text-xs text-foreground/30'>Platform:</p>
-                <p className='text-xs text-foreground/50'>
-                  {systemInfo?.platform}
-                </p>
-              </div>
-              <div className='flex items-baseline justify-between'>
-                <p className='text-xs text-foreground/30'>OS:</p>
-                <p className='text-xs text-foreground/50'>{systemInfo?.type}</p>
+              <div className='flex flex-col gap-2'>
+                <div className='flex items-baseline'>
+                  <p className='text-xs text-foreground/50 w-20'>Platform:</p>
+                  <p className='text-xs text-foreground font-semibold'>
+                    {systemInfo?.platform}
+                  </p>
+                </div>
+                <div className='flex items-baseline'>
+                  <p className='text-xs text-foreground/50 w-20'>OS:</p>
+                  <p className='text-xs text-foreground font-semibold'>
+                    {systemInfo?.type}
+                  </p>
+                </div>
               </div>
               <Button onClick={() => navigate('/login')}>
                 <GearIcon className='w-4 h-4 mr-2' />
-                Change config
+                Configure Database
               </Button>
             </div>
           </PopoverContent>
