@@ -60,20 +60,6 @@ export const NewTaskDialog = ({ projectId, onMutate }: NewTaskDialogProps) => {
     }
   };
 
-  // useEffect(() => {
-  //   console.log('new task dialog effect ran');
-  //   const handleShortcutOpen = (e: KeyboardEvent) => {
-  //     if (e.key === 'n' && e.ctrlKey) {
-  //       e.preventDefault();
-  //       setOpen(true);
-  //     }
-  //   };
-  //   window.addEventListener('keydown', handleShortcutOpen);
-  //   return () => {
-  //     window.removeEventListener('keydown', handleShortcutOpen);
-  //   };
-  // }, []);
-
   const handleShortcutOpen = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === 'n' && e.ctrlKey) {
