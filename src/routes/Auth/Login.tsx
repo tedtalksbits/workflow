@@ -36,12 +36,12 @@ export const Login = () => {
   useConfig(handleConfigChange);
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+    console.log(formData, 'form data');
     const res = await window.electron.ipcRenderer.invoke('connect', formData);
     if (res.success) {
       console.log(res);
       localStorage.setItem('config', JSON.stringify(formData));
-      navigate('/');
+      window.location.reload();
       toast({
         title: 'Connected to database',
         description:
@@ -92,7 +92,8 @@ export const Login = () => {
               required
               type='hostname'
               id='hostname'
-              value={formData.host}
+              placeholder='localhost'
+              value={formData?.host}
               onChange={(e) =>
                 setFormData({ ...formData, host: e.target.value })
               }
@@ -104,7 +105,8 @@ export const Login = () => {
               required
               type='port'
               id='port'
-              value={formData.port}
+              placeholder='3306'
+              value={formData?.port}
               onChange={(e) => {
                 setFormData({ ...formData, port: parseInt(e.target.value) });
               }}
@@ -117,7 +119,8 @@ export const Login = () => {
             required
             type='user'
             id='user'
-            value={formData.user}
+            placeholder='root'
+            value={formData?.user}
             onChange={(e) => {
               setFormData({ ...formData, user: e.target.value });
             }}
@@ -131,7 +134,7 @@ export const Login = () => {
               type={showPassword ? 'text' : 'password'}
               id='password'
               placeholder='your password'
-              value={formData.password || ''}
+              value={formData?.password}
               onChange={(e) => {
                 setFormData({ ...formData, password: e.target.value });
               }}
@@ -156,7 +159,7 @@ export const Login = () => {
             type='text'
             id='database'
             placeholder='your schema'
-            value={formData.database}
+            value={formData?.database}
             onChange={(e) => {
               setFormData({ ...formData, database: e.target.value });
             }}
@@ -171,7 +174,7 @@ export const Login = () => {
             )}
             <Button
               type='submit'
-              disabled={config?.database === formData.database}
+              disabled={config?.database === formData?.database}
             >
               Connect
             </Button>
