@@ -13,13 +13,12 @@ import {
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowRightIcon } from '@radix-ui/react-icons';
+import { ArrowRightIcon, CalendarIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
 import { Task, priorityColors, statusColors } from '@/types/task';
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -115,21 +114,13 @@ export const TaskUpdate = ({ task, onMutate, projectId }: TaskUpdateProps) => {
             <ArrowRightIcon />
           </div>
         </SheetTrigger>
-        <SheetContent className='min-w-[600px]'>
+        <SheetContent className='min-w-[100%] md:min-w-[800px]'>
           <SheetHeader>
-            <SheetTitle>
-              <span className='text-foreground/50'>Task:</span> {task.title}
+            <SheetTitle className='py-4'>
+              <span className='text-xl font-extrabold'>{task.title}</span>
             </SheetTitle>
-            <SheetDescription>
-              This will mutate the task and all its data. This action is
-              irreversible.
-            </SheetDescription>
           </SheetHeader>
           <Tabs defaultValue='view' className='my-4'>
-            <TabsList>
-              <TabsTrigger value='update'>Update</TabsTrigger>
-              <TabsTrigger value='view'>View</TabsTrigger>
-            </TabsList>
             <TabsContent value='update' className='my-4'>
               <form onSubmit={handleUpdateTask} className='flex flex-col gap-3'>
                 <div className='form-group'>
@@ -288,17 +279,69 @@ export const TaskUpdate = ({ task, onMutate, projectId }: TaskUpdateProps) => {
               </Zone>
             </TabsContent>
             <TabsContent value='view'>
-              <div className='flex flex-col gap-3'>
-                <div className='flex items-center gap-2'>
-                  <h3 className='text-foreground/50'>Title:</h3>
-                  <p>{task.title}</p>
+              <div className='flex flex-col gap-4'>
+                <div className='row flex justify-between'>
+                  <span className='text-foreground/50 font-light w-[120px] min-w-fit'>
+                    Status
+                  </span>
+                  <span className='text-foreground flex-1'>
+                    <Indicator className={statusColors[task.status]} />
+                    {task.status}
+                  </span>
                 </div>
-                <div className='flex items-center gap-2'>
-                  <h3 className='text-foreground/50'>Description:</h3>
-                  <p>{task.description}</p>
+                <div className='row flex justify-between'>
+                  <span className='text-foreground/50 font-light w-[120px] min-w-fit'>
+                    Priority
+                  </span>
+                  <span className='text-foreground flex-1'>
+                    <Indicator className={priorityColors[task.priority]} />
+                    {task.priority}
+                  </span>
+                </div>
+                <div className='row flex justify-between'>
+                  <span className='text-foreground/50 font-light w-[120px] min-w-fit'>
+                    Due Date
+                  </span>
+                  <span className='text-foreground flex-1'>
+                    <CalendarIcon className='inline-block w-4 h-4 mr-2 text-green-500' />
+                    {task.dueDate?.toLocaleDateString('en', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                  </span>
+                </div>
+                <div className='row flex justify-between'>
+                  <span className='text-foreground/50 font-light w-[120px] min-w-fit'>
+                    Tags
+                  </span>
+                  <span className='text-foreground flex-1'>{task.tags}</span>
+                </div>
+                <div className='row flex justify-between'>
+                  <span className='text-foreground/50 font-light w-[120px] min-w-fit'>
+                    Created
+                  </span>
+                  <span className='text-foreground flex-1'>
+                    {task.createdAt.toLocaleDateString('en', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                      minute: 'numeric',
+                      hour: 'numeric',
+                      second: 'numeric',
+                    })}
+                  </span>
                 </div>
               </div>
+              <div className='flex flex-col gap-3 my-8'>
+                <span className='text-foreground/50'>Description</span>
+                {task.description}
+              </div>
             </TabsContent>
+            <TabsList className='mt-16'>
+              <TabsTrigger value='update'>Update</TabsTrigger>
+              <TabsTrigger value='view'>View</TabsTrigger>
+            </TabsList>
           </Tabs>
         </SheetContent>
       </Sheet>
