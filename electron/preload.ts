@@ -3,6 +3,12 @@ import { Project } from '@/types/projects';
 import { Task } from '@/types/task';
 import { IpcRendererEvent, contextBridge, ipcRenderer } from 'electron';
 import { SystemInfo } from './db/app/appListeners';
+import { Connection } from './db/types/connection';
+export const ipcRendererWrappers = {
+  invoke: async <T>(channel: string, ...args: unknown[]): Promise<T> => {
+    return ipcRenderer.invoke(channel, ...args);
+  },
+};
 
 const electronHandler = {
   ipcRenderer: {
@@ -51,6 +57,19 @@ const electronHandler = {
   },
   systemInfo: {
     get: () => ipcRenderer.invoke('get:systemInfo') as Promise<SystemInfo>,
+  },
+  db: {
+    connect: (connection: Connection) =>
+      ipcRenderer.invoke('connect', connection) as Promise<Connection>,
+    disconnect: () => ipcRenderer.invoke('disconnect') as Promise<Connection>,
+    getConnection: () =>
+      ipcRenderer.invoke('get:connection') as Promise<Connection>,
+    getConnectionSync: () =>
+      ipcRenderer.invoke('get:connection:sync') as Promise<Connection>,
+    getConnectionSyncReply: () =>
+      ipcRenderer.invoke('get:connection:sync:reply') as Promise<Connection>,
+    getDatabases: () =>
+      ipcRendererWrappers.invoke<{ Database: string }[]>('get:databases'),
   },
 };
 contextBridge.exposeInMainWorld('electron', electronHandler);

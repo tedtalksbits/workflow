@@ -7,4 +7,5 @@ export type Connection = {
   user: string;
   password: string;
   database: string;
+  shouldCreateDB: boolean;
 };
