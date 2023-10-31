@@ -9,10 +9,11 @@ import {
   EyeOpenIcon,
   LockClosedIcon,
 } from '@radix-ui/react-icons';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Connection } from 'electron/db/types/connection';
 import { useToast } from '@/components/ui/use-toast';
 import useConfig from '@/hooks/useConfig';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export const Login = () => {
   const navigate = useNavigate();
@@ -25,8 +26,9 @@ export const Login = () => {
     host: '',
     password: '',
     user: '',
+    shouldCreateDB: false,
   });
-
+  const [databases, setDatabases] = useState<{ Database: string }[]>([]);
   const handleConfigChange = useCallback((config: Connection) => {
     console.log('config change effect ran');
     setConfig(config);
@@ -34,6 +36,7 @@ export const Login = () => {
   }, []);
 
   useConfig(handleConfigChange);
+
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log(formData, 'form data');
@@ -61,6 +64,15 @@ export const Login = () => {
       });
     }
   };
+
+  useEffect(() => {
+    async function getDatabases() {
+      const res = await window.electron.db.getDatabases();
+      console.log(res);
+      setDatabases(res);
+    }
+    getDatabases();
+  }, []);
 
   return (
     <div className='h-[80vh] flex justify-center items-center flex-col'>
@@ -93,7 +105,7 @@ export const Login = () => {
               type='hostname'
               id='hostname'
               placeholder='localhost'
-              value={formData?.host}
+              value={formData?.host || ''}
               onChange={(e) =>
                 setFormData({ ...formData, host: e.target.value })
               }
@@ -106,7 +118,7 @@ export const Login = () => {
               type='port'
               id='port'
               placeholder='3306'
-              value={formData?.port}
+              value={formData?.port || ''}
               onChange={(e) => {
                 setFormData({ ...formData, port: parseInt(e.target.value) });
               }}
@@ -120,7 +132,7 @@ export const Login = () => {
             type='user'
             id='user'
             placeholder='root'
-            value={formData?.user}
+            value={formData?.user || ''}
             onChange={(e) => {
               setFormData({ ...formData, user: e.target.value });
             }}
@@ -134,12 +146,12 @@ export const Login = () => {
               type={showPassword ? 'text' : 'password'}
               id='password'
               placeholder='your password'
-              value={formData?.password}
+              value={formData?.password || ''}
               onChange={(e) => {
                 setFormData({ ...formData, password: e.target.value });
               }}
             />
-            <label
+            <Label
               className='password-toggle absolute right-0 top-0 bottom-0 flex items-center justify-center w-10 h-10 text-foreground/50'
               htmlFor='password-toggle'
               aria-label='Show password as plain text. Warning: this will display your password on the screen.'
@@ -149,22 +161,63 @@ export const Login = () => {
               ) : (
                 <EyeOpenIcon onClick={() => setShowPassword(!showPassword)} />
               )}
-            </label>
+            </Label>
           </div>
         </div>
         <div className='form-group'>
           <Label htmlFor='database'>Database</Label>
-          <Input
-            required
-            type='text'
-            id='database'
-            placeholder='your schema'
-            value={formData?.database}
-            onChange={(e) => {
-              setFormData({ ...formData, database: e.target.value });
-            }}
-          />
+          <Tabs defaultValue='new'>
+            <TabsList>
+              <TabsTrigger value='new'>New</TabsTrigger>
+              <TabsTrigger value='select'>Select</TabsTrigger>
+            </TabsList>
+            <TabsContent value='new'>
+              <Input
+                required
+                type='text'
+                id='database'
+                placeholder='your schema'
+                value={formData?.database || ''}
+                onChange={(e) => {
+                  setFormData({ ...formData, database: e.target.value });
+                }}
+              />
+              <div className='flex mt-4 gap-2'>
+                <Label htmlFor='shouldCreateDB'>
+                  Create DB if doesn't exist?
+                </Label>
+
+                <input
+                  type='checkbox'
+                  id='shouldCreateDB'
+                  checked={formData?.shouldCreateDB || false}
+                  onChange={(e) => {
+                    setFormData({
+                      ...formData,
+                      shouldCreateDB: e.target.checked,
+                    });
+                  }}
+                />
+              </div>
+            </TabsContent>
+            <TabsContent value='select'>
+              <select
+                name='database'
+                id='database'
+                onChange={(e) => {
+                  setFormData({ ...formData, database: e.target.value });
+                }}
+              >
+                {databases.map((db) => (
+                  <option key={db.Database} value={db.Database}>
+                    {db.Database}
+                  </option>
+                ))}
+              </select>
+            </TabsContent>
+          </Tabs>
         </div>
+
         <div className='form-footer'>
           <div className='flex justify-between items-center'>
             {config && (

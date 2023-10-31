@@ -2,7 +2,7 @@ import { app, ipcMain } from 'electron';
 import fs from 'fs/promises';
 import path from 'node:path';
 import { Connection } from './types/connection';
-import { init } from './config';
+import { connect, init } from './config';
 export const localPath = path.join(app.getPath('userData'));
 
 export const connectionListeners = () => {
@@ -56,6 +56,21 @@ export const connectionListeners = () => {
         user: connection.user,
         database: connection.database,
       };
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
+  });
+
+  ipcMain.handle('get:databases', async () => {
+    try {
+      const connection = await connect();
+      if (!connection) {
+        return null;
+      }
+
+      const [row] = await connection.query('SHOW DATABASES');
+      return row;
     } catch (e) {
       console.log(e);
       return null;

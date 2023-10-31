@@ -21,6 +21,20 @@ export async function connect() {
   if (!dbConfig) {
     return null;
   }
+  // create db if dbconfig.shouldCreateDB is true
+
+  if (dbConfig.shouldCreateDB) {
+    const connection = mysql.createConnection({
+      host: dbConfig.host,
+      user: dbConfig.user,
+      port: dbConfig.port,
+      password: dbConfig.password,
+    });
+    connection.connect();
+    connection.query(`CREATE DATABASE IF NOT EXISTS ${dbConfig.database};`);
+    connection.end();
+  }
+
   const pool = mysql.createPool({
     host: dbConfig.host,
     user: dbConfig.user,
