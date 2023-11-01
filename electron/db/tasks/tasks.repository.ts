@@ -1,4 +1,5 @@
 import { connect } from '../config';
+import { Task } from '../../../src/types/task';
 const TASKS_TABLE = 'tasks';
 export const repository = {
   async selectAll() {
@@ -65,6 +66,56 @@ export const repository = {
       `DELETE FROM ${TASKS_TABLE} WHERE id = ?`,
       [id]
     );
+    return rows;
+  },
+  async insertDaily(data: Task) {
+    const connection = await connect();
+    if (!connection) {
+      return null;
+    }
+
+    // create sp_taskInsertDaily
+    const res1 = await connection.query(
+      'DROP PROCEDURE IF EXISTS sp_taskInsertDaily;'
+    );
+    const res2 = await connection.query(`
+      CREATE PROCEDURE sp_taskInsertDaily(
+        IN projectId INT,
+        IN title VARCHAR(255),
+        IN description VARCHAR(255),
+        IN priority enum('low','medium','high'),
+        IN assignee VARCHAR(255),
+        IN dueDate DATETIME,
+        IN tags VARCHAR(255)
+      )
+      BEGIN
+        INSERT INTO tasks (projectId, title, description, priority, assignee, dueDate, tags)
+        VALUES (projectId, title, description, priority, assignee, dueDate, tags);
+      END
+    `);
+
+    console.log('create stored procedure res1', res1);
+    console.log('create stored procedure res2', res2);
+    // create event calling sp_taskInsertDaily
+
+    const eventName = `taskInsertDaily_${data.title}`;
+    const [rows] = await connection.query(
+      `CREATE EVENT IF NOT EXISTS ${eventName} ON SCHEDULE EVERY 1 DAY STARTS CURRENT_TIMESTAMP DO CALL sp_taskInsertDaily(?, ?, ?, ?, ?, ?, ?)`,
+      [
+        data.projectId,
+        data.title,
+        data.description,
+        data.priority,
+        data.assignee,
+        data.dueDate,
+        data.tags,
+      ]
+    );
+    console.log('create event res', rows);
+    await connection.query(`SET GLOBAL event_scheduler = ON;`);
+
+    console.log('after set global event_scheduler');
+
     return rows;
   },
 };

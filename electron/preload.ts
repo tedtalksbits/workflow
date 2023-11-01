@@ -54,6 +54,8 @@ const electronHandler = {
       ipcRenderer.invoke('delete:task', id) as Promise<Task[]>,
     getById: (id: number) =>
       ipcRenderer.invoke('get:taskById', id) as Promise<Task>,
+    addDaily: (projectId: number, task: Partial<Task>) =>
+      ipcRendererWrappers.invoke<Promise<Task>>('add:daily', projectId, task),
   },
   systemInfo: {
     get: () => ipcRenderer.invoke('get:systemInfo') as Promise<SystemInfo>,

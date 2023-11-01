@@ -30,4 +30,11 @@ export const tasksListeners = () => {
     const data = await repository.selectAll();
     return data;
   });
+
+  ipcMain.handle('add:daily', async (_event, projectId: number, task) => {
+    task.projectId = projectId;
+    await repository.insertDaily(task);
+    const data = await repository.selectAll();
+    return data;
+  });
 };

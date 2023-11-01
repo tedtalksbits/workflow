@@ -24,6 +24,7 @@ import { CustomTagSelect } from '@/components/customSelects/CustomTagSelect';
 import { useToast } from '@/components/ui/use-toast';
 import { useShortcuts } from '@/hooks/useShortcuts';
 import { Kdb } from '@/components/ui/kdb';
+import { LoopIcon } from '@radix-ui/react-icons';
 type NewTaskDialogProps = {
   onMutate: (tasks: Task[]) => void;
   projectId: number | null;
@@ -39,8 +40,15 @@ export const NewTaskDialog = ({ projectId, onMutate }: NewTaskDialogProps) => {
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries()) as Partial<Task>;
     data.dueDate && new Date(data.dueDate).toISOString();
+    const repeat = formData.get('repeat') as 'on' | null;
+    console.log(repeat);
     try {
-      await window.electron.tasks.add(projectId, data);
+      if (repeat === 'on') {
+        await window.electron.tasks.addDaily(projectId, data);
+      } else {
+        await window.electron.tasks.add(projectId, data);
+      }
+
       const tasks = await window.electron.tasks.getByProjectId(projectId);
       onMutate(tasks);
       toast({
@@ -161,6 +169,18 @@ export const NewTaskDialog = ({ projectId, onMutate }: NewTaskDialogProps) => {
           </div>
           <div className='form-group'>
             <CustomTagSelect setTags={setTags} tags={tags} />
+          </div>
+          <div className='flex gap-4'>
+            <Label htmlFor='repeat'>
+              <LoopIcon className='w-5 h-5' />
+              Repeat daily
+            </Label>
+            <input
+              type='checkbox'
+              name='repeat'
+              id='repeat'
+              className='w-5 h-5'
+            />
           </div>
           <div className='form-footer'>
             <Button type='submit'>Add task</Button>
