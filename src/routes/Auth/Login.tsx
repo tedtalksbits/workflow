@@ -164,8 +164,11 @@ export const Login = () => {
             </Label>
           </div>
         </div>
+        <Separator />
         <div className='form-group'>
-          <Label htmlFor='database'>Database</Label>
+          <Label htmlFor='database'>
+            Database (Create a new schema or choose from existing schemas)
+          </Label>
           <Tabs defaultValue='new'>
             <TabsList>
               <TabsTrigger value='new'>New</TabsTrigger>
