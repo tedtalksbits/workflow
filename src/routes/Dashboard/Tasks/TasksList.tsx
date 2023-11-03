@@ -26,6 +26,7 @@ import { Label } from '@radix-ui/react-label';
 import { dTFns } from '@/lib/utils';
 import { useShortcuts } from '@/hooks/useShortcuts';
 import { Kdb } from '@/components/ui/kdb';
+import { SystemInfo } from 'electron/db/app/appListeners';
 
 type TaskTableProps = {
   tasks: Task[];
@@ -46,7 +47,10 @@ export const TasksList = ({
   const isFiltered = searchTerm.key !== '' && searchTerm.value !== '';
 
   const taskSearchInput = useRef<HTMLInputElement>(null);
-
+  const [systemInfo] = useState<SystemInfo>(
+    JSON.parse(localStorage.getItem('systemInfo') || '{}')
+  );
+  const isMac = systemInfo.platform === 'darwin';
   useEffect(() => {
     if (!selectedProjectId) return;
     window.electron.tasks.getByProjectId(selectedProjectId).then(
@@ -67,7 +71,7 @@ export const TasksList = ({
     };
   }, [setTasks, selectedProjectId, toast]);
   const handleNewTaskSearchShortcut = (e: KeyboardEvent) => {
-    if (e.key === 't' && e.ctrlKey) {
+    if (e.key === 't' && (isMac ? e.metaKey : e.ctrlKey)) {
       e.preventDefault();
       taskSearchInput.current?.focus();
     }
@@ -264,6 +268,7 @@ export const TasksList = ({
           <div className='flex-1 relative'>
             <Input
               placeholder='Search tasks'
+              className='peer'
               disabled={tasks.length === 0}
               onChange={(e) =>
                 setSearchTerm({
@@ -273,15 +278,15 @@ export const TasksList = ({
               }
               ref={taskSearchInput}
             />
-            <Kdb className='absolute right-1 top-2 flex items-center justify-center bg-foreground/10'>
-              <span>⌘</span>t
+            <Kdb className='peer-active:hidden peer-focus-within:hidden peer-focus:hidden absolute right-1 top-2 flex items-center justify-center bg-foreground/10'>
+              {isMac ? '⌘' : 'ctrl'}+t
             </Kdb>
           </div>
-          <NewTaskDialog
+          {/* <NewTaskDialog
             projectId={selectedProjectId}
             key={selectedProjectId}
             onMutate={setTasks}
-          />
+          /> */}
         </div>
       </div>
 

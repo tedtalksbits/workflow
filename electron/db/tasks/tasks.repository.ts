@@ -1,5 +1,6 @@
 import { connect } from '../config';
 import { Task } from '../../../src/types/task';
+import { Pool } from 'mysql2';
 const TASKS_TABLE = 'tasks';
 export const repository = {
   async selectAll() {
@@ -68,18 +69,16 @@ export const repository = {
     );
     return rows;
   },
-  async insertDaily(data: Task) {
+  async insertDaily(data: Task, frequency: string) {
     const connection = await connect();
     if (!connection) {
       return null;
     }
 
     // create sp_taskInsertDaily
-    const res1 = await connection.query(
-      'DROP PROCEDURE IF EXISTS sp_taskInsertDaily;'
-    );
-    const res2 = await connection.query(`
-      CREATE PROCEDURE sp_taskInsertDaily(
+    await connection.query('DROP PROCEDURE IF EXISTS sp_taskInsertDaily;');
+    await connection.query(`
+      CREATE PROCEDURE sp_taskInsert(
         IN projectId INT,
         IN title VARCHAR(255),
         IN description VARCHAR(255),
@@ -93,9 +92,6 @@ export const repository = {
         VALUES (projectId, title, description, priority, assignee, dueDate, tags);
       END
     `);
-
-    console.log('create stored procedure res1', res1);
-    console.log('create stored procedure res2', res2);
     // create event calling sp_taskInsertDaily
 
     const eventName = `taskInsertDaily_${data.title}`;

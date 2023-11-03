@@ -5,6 +5,8 @@ import { ProjectUpdate } from './ProjectUpdate';
 import { dayjsUtils } from '@/utils/dayjs';
 import { Kdb } from '@/components/ui/kdb';
 import { useShortcuts } from '@/hooks/useShortcuts';
+import { SystemInfo } from 'electron/db/app/appListeners';
+import { Dialogs } from '../Dashboard';
 type NavbarProps = {
   projects: Project[];
   onSelectProjectId: (projectId: number) => void;
@@ -20,6 +22,9 @@ export const ProjectsList = ({
 }: NavbarProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const [systemInfo] = useState<SystemInfo>(
+    JSON.parse(localStorage.getItem('systemInfo') || '{}')
+  );
   useEffect(() => {
     window.electron.projects.get().then((res) => {
       setProjects(res);
@@ -29,8 +34,9 @@ export const ProjectsList = ({
   const filteredProjects = projects.filter((project) =>
     project.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+  const isMac = systemInfo.platform === 'darwin';
   const handleNewSearchShortcut = (e: KeyboardEvent) => {
-    if (e.key === 'j' && e.ctrlKey) {
+    if (e.key === 'j' && (isMac ? e.metaKey : e.ctrlKey)) {
       e.preventDefault();
       searchInputRef.current?.focus();
     }
@@ -43,14 +49,14 @@ export const ProjectsList = ({
       <div className='px-2 my-4 relative'>
         <Input
           placeholder='Search projects'
-          className=''
+          className='peer'
           onChange={(e) => setSearchQuery(e.target.value)}
           disabled={projects.length === 0}
           ref={searchInputRef}
         />
 
-        <Kdb className='absolute right-3 top-2 flex items-center justify-center bg-foreground/10'>
-          <span>⌘</span>j
+        <Kdb className='peer-active:hidden peer-focus-within:hidden peer-focus:hidden absolute right-3 top-2 flex items-center justify-center bg-foreground/10'>
+          {isMac ? '⌘' : 'ctrl'}+j
         </Kdb>
       </div>
       <ul className='mt-4'>

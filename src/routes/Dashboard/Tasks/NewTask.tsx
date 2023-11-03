@@ -24,7 +24,8 @@ import { CustomTagSelect } from '@/components/customSelects/CustomTagSelect';
 import { useToast } from '@/components/ui/use-toast';
 import { useShortcuts } from '@/hooks/useShortcuts';
 import { Kdb } from '@/components/ui/kdb';
-import { LoopIcon } from '@radix-ui/react-icons';
+import { LoopIcon, PlusIcon } from '@radix-ui/react-icons';
+import { SystemInfo } from 'electron/db/app/appListeners';
 type NewTaskDialogProps = {
   onMutate: (tasks: Task[]) => void;
   projectId: number | null;
@@ -33,6 +34,10 @@ export const NewTaskDialog = ({ projectId, onMutate }: NewTaskDialogProps) => {
   const [open, setOpen] = useState(false);
   const [tags, setTags] = useState<string>('');
   const { toast } = useToast();
+  const [systemInfo, setSystemInfo] = useState<SystemInfo>(
+    JSON.parse(localStorage.getItem('systemInfo') || '{}')
+  );
+  const isMac = systemInfo.platform === 'darwin';
   const handleAddTask = async (e: React.FormEvent<HTMLFormElement>) => {
     if (!projectId) return;
     e.preventDefault();
@@ -70,7 +75,7 @@ export const NewTaskDialog = ({ projectId, onMutate }: NewTaskDialogProps) => {
 
   const handleShortcutOpen = useCallback(
     (e: KeyboardEvent) => {
-      if (e.key === 'n' && e.ctrlKey) {
+      if (e.key === 'n' && (isMac ? e.metaKey : e.ctrlKey)) {
         e.preventDefault();
         setOpen(true);
       }
@@ -84,10 +89,8 @@ export const NewTaskDialog = ({ projectId, onMutate }: NewTaskDialogProps) => {
     <Dialog open={open} onOpenChange={() => setOpen(!open)}>
       <DialogTrigger asChild>
         <Button className='w-fit h-fit p-2'>
-          <span>+ Task</span>
-          <Kdb className='ml-2'>
-            <span>⌘</span>n
-          </Kdb>
+          <span>Task</span>
+          <PlusIcon className='w-5 h-5 ml-2' />
         </Button>
       </DialogTrigger>
       <DialogContent>

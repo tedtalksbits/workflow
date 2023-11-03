@@ -13,15 +13,20 @@ import { Textarea } from '@/components/ui/textarea';
 import { Project } from '@/types/projects';
 import React, { useCallback } from 'react';
 import { useToast } from '@/components/ui/use-toast';
-import { FileTextIcon } from '@radix-ui/react-icons';
+import { FileTextIcon, PlusIcon } from '@radix-ui/react-icons';
 import { useShortcuts } from '@/hooks/useShortcuts';
-import { Kdb } from '@/components/ui/kdb';
+import { Dialogs } from '../Dashboard';
 type NewProjectDialogProps = {
   projects: Project[];
   onMutate: (projects: Project[]) => void;
+  dialogs: Dialogs;
+  setDialogs: (dialogs: Dialogs) => void;
 };
-export const NewProjectDialog = ({ onMutate }: NewProjectDialogProps) => {
-  const [open, setOpen] = React.useState(false);
+export const NewProjectDialog = ({
+  onMutate,
+  dialogs,
+  setDialogs,
+}: NewProjectDialogProps) => {
   const { toast } = useToast();
 
   const handleAddProject = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -41,7 +46,7 @@ export const NewProjectDialog = ({ onMutate }: NewProjectDialogProps) => {
         description: 'Project ' + project.name + ' has been added',
         variant: 'success',
       });
-      setOpen(false);
+      setDialogs({ ...dialogs, newProject: false });
     } catch (e) {
       console.log(e);
       const err = e as Error;
@@ -55,7 +60,7 @@ export const NewProjectDialog = ({ onMutate }: NewProjectDialogProps) => {
 
   const handleNewProjectShortcut = useCallback((e: KeyboardEvent) => {
     if (e.key === 'p' && e.ctrlKey) {
-      setOpen(true);
+      setDialogs({ ...dialogs, newProject: true });
     }
   }, []);
 
@@ -68,16 +73,19 @@ export const NewProjectDialog = ({ onMutate }: NewProjectDialogProps) => {
             <FileTextIcon className='w-5 h-5' />
             Projects
           </h2>
-          <Dialog open={open} onOpenChange={() => setOpen(!open)}>
+          <Dialog
+            open={dialogs.newProject}
+            onOpenChange={() =>
+              setDialogs({ ...dialogs, newProject: !dialogs.newProject })
+            }
+          >
             <DialogTrigger asChild>
               <Button
                 variant='default'
                 className='w-fit h-fit p-2 whitespace-nowrap'
               >
-                <span>+ Project</span>
-                <Kdb className='ml-2'>
-                  <span>⌘</span>p
-                </Kdb>
+                <span>Project</span>
+                <PlusIcon className='w-5 h-5 ml-2' />
               </Button>
             </DialogTrigger>
             <DialogContent>
