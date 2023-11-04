@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { Project } from '@/types/projects';
-import { Task } from '@/types/task';
+import { Task, TaskFrequency } from '@/types/task';
 import { IpcRendererEvent, contextBridge, ipcRenderer } from 'electron';
 import { SystemInfo } from './db/app/appListeners';
 import { Connection } from './db/types/connection';
@@ -54,8 +54,19 @@ const electronHandler = {
       ipcRenderer.invoke('delete:task', id) as Promise<Task[]>,
     getById: (id: number) =>
       ipcRenderer.invoke('get:taskById', id) as Promise<Task>,
-    addDaily: (projectId: number, task: Partial<Task>) =>
-      ipcRendererWrappers.invoke<Promise<Task>>('add:daily', projectId, task),
+    addRecurring: (
+      projectId: number,
+      task: Partial<Task>,
+      startDate: string,
+      frequency: TaskFrequency
+    ) =>
+      ipcRendererWrappers.invoke<Promise<Task>>(
+        'add:recurring-task',
+        projectId,
+        task,
+        startDate,
+        frequency
+      ),
   },
   systemInfo: {
     get: () => ipcRenderer.invoke('get:systemInfo') as Promise<SystemInfo>,
@@ -97,6 +108,7 @@ export type Channels =
   | 'shortcut:newTask';
 
 export type ElectronHandler = typeof electronHandler;
+export type AddRecurringTask = typeof electronHandler.tasks.addRecurring;
 function domReady(
   condition: DocumentReadyState[] = ['complete', 'interactive']
 ) {

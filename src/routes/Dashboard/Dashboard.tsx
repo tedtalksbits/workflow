@@ -14,6 +14,7 @@ import {
   CommandList,
 } from '@/components/ui/command';
 import { useShortcuts } from '@/hooks/useShortcuts';
+import { NewTaskDialog } from './Tasks/NewTask';
 export interface Dialogs {
   newProject: boolean;
   command: boolean;
@@ -50,7 +51,6 @@ export const Dashboard = () => {
             dialogs={dialogs}
             setDialogs={setDialogs}
           />
-
           <ProjectsList
             setProjects={setProjects}
             projects={projects}
@@ -62,6 +62,16 @@ export const Dashboard = () => {
       <div className='content flex-1'>
         <DashboardHeader />
         <div className='p-4'>
+          <div className='flex'>
+            <div className='ml-auto mb-4'>
+              <NewTaskDialog
+                dialogs={dialogs}
+                setDialogs={setDialogs}
+                projectId={selectedProjectId}
+                onMutate={setTasks}
+              />
+            </div>
+          </div>
           <TasksList
             tasks={tasks}
             setTasks={setTasks}
@@ -90,8 +100,16 @@ export const Dashboard = () => {
             >
               New Project
             </CommandItem>
-            <CommandItem>Search Emoji</CommandItem>
-            <CommandItem>Calculator</CommandItem>
+            <CommandItem
+              value='newtask'
+              onSelect={(currentValue) => {
+                if (currentValue === 'newtask') {
+                  setDialogs({ ...dialogs, newTask: true });
+                }
+              }}
+            >
+              New Task
+            </CommandItem>
           </CommandGroup>
         </CommandList>
       </CommandDialog>

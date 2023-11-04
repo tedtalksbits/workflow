@@ -1,6 +1,6 @@
 import { connect } from '../config';
-import { Task } from '../../../src/types/task';
-import { Pool } from 'mysql2';
+import { Task, TaskFrequency } from '../../../src/types/task';
+import { uuid } from '../../../src/utils/uuid';
 const TASKS_TABLE = 'tasks';
 export const repository = {
   async selectAll() {
@@ -9,7 +9,7 @@ export const repository = {
       return null;
     }
     const [rows] = await connection.query(`SELECT * FROM ${TASKS_TABLE}`);
-    return rows;
+    return rows as Task[];
   },
   async select<T extends Record<string, unknown>>(fields: string[], where: T) {
     const connection = await connect();
@@ -41,7 +41,7 @@ export const repository = {
       values
     );
 
-    return rows;
+    return rows as Task[];
   },
   async update(id: number, data: Record<string, unknown>) {
     const connection = await connect();
@@ -69,14 +69,14 @@ export const repository = {
     );
     return rows;
   },
-  async insertDaily(data: Task, frequency: string) {
+  async insertRecurring(data: Task, frequency: string, startDate: string) {
     const connection = await connect();
     if (!connection) {
       return null;
     }
 
-    // create sp_taskInsertDaily
-    await connection.query('DROP PROCEDURE IF EXISTS sp_taskInsertDaily;');
+    // create sp_taskInsert
+    await connection.query('DROP PROCEDURE IF EXISTS sp_taskInsert;');
     await connection.query(`
       CREATE PROCEDURE sp_taskInsert(
         IN projectId INT,
@@ -94,9 +94,12 @@ export const repository = {
     `);
     // create event calling sp_taskInsertDaily
 
-    const eventName = `taskInsertDaily_${data.title}`;
+    const eventName = `taskInsertDaily_${sanitizeTitle(data.title)}`;
+    console.log('eventName', eventName);
     const [rows] = await connection.query(
-      `CREATE EVENT IF NOT EXISTS ${eventName} ON SCHEDULE EVERY 1 DAY STARTS CURRENT_TIMESTAMP DO CALL sp_taskInsertDaily(?, ?, ?, ?, ?, ?, ?)`,
+      `CREATE EVENT IF NOT EXISTS ${eventName} ON SCHEDULE EVERY ${frequency} STARTS '${
+        startDate || 'CURRENT_TIMESTAMP'
+      }' DO CALL sp_taskInsert(?, ?, ?, ?, ?, ?, ?)`,
       [
         data.projectId,
         data.title,
@@ -115,3 +118,11 @@ export const repository = {
     return rows;
   },
 };
+
+function sanitizeTitle(title: string) {
+  // remove special characters
+  title = title.replace(/[^\w\s]/gi, '');
+  // remove spaces
+  title = title.replace(/\s/g, '');
+  return title;
+}

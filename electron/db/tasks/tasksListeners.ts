@@ -31,10 +31,21 @@ export const tasksListeners = () => {
     return data;
   });
 
-  ipcMain.handle('add:daily', async (_event, projectId: number, task) => {
-    task.projectId = projectId;
-    await repository.insertDaily(task);
-    const data = await repository.selectAll();
-    return data;
-  });
+  ipcMain.handle(
+    'add:recurring-task',
+    async (
+      _event,
+      projectId: number,
+      task,
+      startDate: string,
+      frequency: string
+    ) => {
+      task.projectId = projectId;
+      // convert date to mysql format
+      startDate = startDate.replace('T', ' ').replace('Z', '');
+      await repository.insertRecurring(task, frequency, startDate);
+      const data = await repository.selectAll();
+      return data;
+    }
+  );
 };

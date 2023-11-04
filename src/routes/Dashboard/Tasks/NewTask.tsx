@@ -16,25 +16,43 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Task, priorityColors } from '@/types/task';
+import { Task, TaskFrequency, priorityColors } from '@/types/task';
 import { useCallback, useState } from 'react';
 import { Label } from '@/components/ui/label';
 import Indicator from '@/components/ui/indicator';
 import { CustomTagSelect } from '@/components/customSelects/CustomTagSelect';
 import { useToast } from '@/components/ui/use-toast';
 import { useShortcuts } from '@/hooks/useShortcuts';
-import { Kdb } from '@/components/ui/kdb';
 import { LoopIcon, PlusIcon } from '@radix-ui/react-icons';
 import { SystemInfo } from 'electron/db/app/appListeners';
+import { Dialogs } from '../Dashboard';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
 type NewTaskDialogProps = {
   onMutate: (tasks: Task[]) => void;
   projectId: number | null;
+  dialogs: Dialogs;
+  setDialogs: (dialogs: Dialogs) => void;
 };
-export const NewTaskDialog = ({ projectId, onMutate }: NewTaskDialogProps) => {
-  const [open, setOpen] = useState(false);
+export const NewTaskDialog = ({
+  projectId,
+  onMutate,
+  dialogs,
+  setDialogs,
+}: NewTaskDialogProps) => {
   const [tags, setTags] = useState<string>('');
+  const [recurringData, setRecurringData] = useState<{
+    startDate: string;
+    frequency: TaskFrequency;
+  }>({
+    startDate: getLocalDateTime(new Date()),
+    frequency: '',
+  });
   const { toast } = useToast();
-  const [systemInfo, setSystemInfo] = useState<SystemInfo>(
+  const [systemInfo] = useState<SystemInfo>(
     JSON.parse(localStorage.getItem('systemInfo') || '{}')
   );
   const isMac = systemInfo.platform === 'darwin';
@@ -44,12 +62,18 @@ export const NewTaskDialog = ({ projectId, onMutate }: NewTaskDialogProps) => {
 
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData.entries()) as Partial<Task>;
-    data.dueDate && new Date(data.dueDate).toISOString();
-    const repeat = formData.get('repeat') as 'on' | null;
-    console.log(repeat);
+    if (!data.dueDate) data.dueDate = null;
+    console.log(recurringData);
+
+    console.log(data);
     try {
-      if (repeat === 'on') {
-        await window.electron.tasks.addDaily(projectId, data);
+      if (recurringData.frequency) {
+        await window.electron.tasks.addRecurring(
+          projectId,
+          data,
+          recurringData.startDate,
+          recurringData.frequency
+        );
       } else {
         await window.electron.tasks.add(projectId, data);
       }
@@ -61,7 +85,7 @@ export const NewTaskDialog = ({ projectId, onMutate }: NewTaskDialogProps) => {
         description: 'Task ' + data.title + ' has been added',
         variant: 'success',
       });
-      setOpen(false);
+      setDialogs({ ...dialogs, newTask: false });
     } catch (e) {
       console.log(e);
       const err = e as Error;
@@ -73,20 +97,23 @@ export const NewTaskDialog = ({ projectId, onMutate }: NewTaskDialogProps) => {
     }
   };
 
-  const handleShortcutOpen = useCallback(
+  const handleShortcutOpenNewTaskDialog = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === 'n' && (isMac ? e.metaKey : e.ctrlKey)) {
         e.preventDefault();
-        setOpen(true);
+        setDialogs({ ...dialogs, newTask: true });
       }
     },
-    [setOpen]
+    [isMac, dialogs, setDialogs]
   );
 
-  useShortcuts(handleShortcutOpen);
+  useShortcuts(handleShortcutOpenNewTaskDialog);
 
   return (
-    <Dialog open={open} onOpenChange={() => setOpen(!open)}>
+    <Dialog
+      open={dialogs.newTask}
+      onOpenChange={() => setDialogs({ ...dialogs, newTask: !dialogs.newTask })}
+    >
       <DialogTrigger asChild>
         <Button className='w-fit h-fit p-2'>
           <span>Task</span>
@@ -161,29 +188,134 @@ export const NewTaskDialog = ({ projectId, onMutate }: NewTaskDialogProps) => {
           </div>
           <div className='form-group'>
             <Label htmlFor='newTaskDueDate'>Due Date</Label>
-            <Input
+            <input
               id='newTaskDueDate'
               type='datetime-local'
               name='dueDate'
               placeholder='due date'
-              defaultValue={new Date().toISOString().slice(0, 16)}
-              min={new Date().toISOString().slice(0, 16)}
+              defaultValue={getLocalDateTime(new Date())}
+              className='w-full inline-block'
             />
           </div>
           <div className='form-group'>
             <CustomTagSelect setTags={setTags} tags={tags} />
           </div>
           <div className='flex gap-4'>
-            <Label htmlFor='repeat'>
-              <LoopIcon className='w-5 h-5' />
-              Repeat daily
-            </Label>
-            <input
-              type='checkbox'
-              name='repeat'
-              id='repeat'
-              className='w-5 h-5'
-            />
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={`${
+                    recurringData.frequency ? 'secondary' : 'outline'
+                  }`}
+                >
+                  <LoopIcon className='h-4 w-4 mr-2' />
+                  {recurringData.frequency === ''
+                    ? 'Repeat'
+                    : recurringData.frequency + '✅'}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent>
+                <div className='flex flex-col gap-2'>
+                  <div className='repeat'>
+                    <div className='flex items-center gap-2'>
+                      <input
+                        type='radio'
+                        name='repeat'
+                        id='none'
+                        className='w-4 h-4'
+                        onChange={() =>
+                          setRecurringData({ ...recurringData, frequency: '' })
+                        }
+                        checked={recurringData.frequency === ''}
+                      />
+                      <Label htmlFor='none'>Do not repeat</Label>
+                    </div>
+                    <div className='flex items-center gap-2'>
+                      <input
+                        type='radio'
+                        name='repeat'
+                        id='daily'
+                        className='w-4 h-4'
+                        checked={recurringData.frequency === '1 DAY'}
+                        onChange={() =>
+                          setRecurringData({
+                            ...recurringData,
+                            frequency: '1 DAY',
+                          })
+                        }
+                      />
+                      <Label htmlFor='daily'>Daily</Label>
+                    </div>
+                    <div className='flex items-center gap-2'>
+                      <input
+                        type='radio'
+                        name='repeat'
+                        id='weekly'
+                        className='w-4 h-4'
+                        checked={recurringData.frequency === '1 WEEK'}
+                        onChange={() =>
+                          setRecurringData({
+                            ...recurringData,
+                            frequency: '1 WEEK',
+                          })
+                        }
+                      />
+                      <Label htmlFor='weekly'>Weekly</Label>
+                    </div>
+                    <div className='flex items-center gap-2'>
+                      <input
+                        type='radio'
+                        name='repeat'
+                        id='monthly'
+                        className='w-4 h-4'
+                        checked={recurringData.frequency === '1 MONTH'}
+                        onChange={() =>
+                          setRecurringData({
+                            ...recurringData,
+                            frequency: '1 MONTH',
+                          })
+                        }
+                      />
+                      <Label htmlFor='monthly'>Monthly</Label>
+                    </div>
+                    <div className='flex items-center gap-2'>
+                      <input
+                        type='radio'
+                        name='repeat'
+                        id='yearly'
+                        className='w-4 h-4'
+                        checked={recurringData.frequency === '1 YEAR'}
+                        onChange={() =>
+                          setRecurringData({
+                            ...recurringData,
+                            frequency: '1 YEAR',
+                          })
+                        }
+                      />
+                      <Label htmlFor='yearly'>Yearly</Label>
+                    </div>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+            {recurringData.frequency !== '' && (
+              <div className='start-date flex gap-2'>
+                <Label htmlFor='startDate'>Starting: </Label>
+                <Input
+                  required
+                  id='startDate'
+                  type='datetime-local'
+                  placeholder='start date'
+                  value={recurringData.startDate}
+                  onChange={(e) =>
+                    setRecurringData({
+                      ...recurringData,
+                      startDate: e.target.value,
+                    })
+                  }
+                />
+              </div>
+            )}
           </div>
           <div className='form-footer'>
             <Button type='submit'>Add task</Button>
@@ -193,3 +325,8 @@ export const NewTaskDialog = ({ projectId, onMutate }: NewTaskDialogProps) => {
     </Dialog>
   );
 };
+
+function getLocalDateTime(date: Date) {
+  const offset = date.getTimezoneOffset() * 60000;
+  return new Date(date.getTime() - offset).toISOString().slice(0, 16);
+}

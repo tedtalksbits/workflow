@@ -58,11 +58,14 @@ export const NewProjectDialog = ({
     }
   };
 
-  const handleNewProjectShortcut = useCallback((e: KeyboardEvent) => {
-    if (e.key === 'p' && e.ctrlKey) {
-      setDialogs({ ...dialogs, newProject: true });
-    }
-  }, []);
+  const handleNewProjectShortcut = useCallback(
+    (e: KeyboardEvent) => {
+      if (e.key === 'p' && e.ctrlKey) {
+        setDialogs({ ...dialogs, newProject: true });
+      }
+    },
+    [setDialogs, dialogs]
+  );
 
   useShortcuts(handleNewProjectShortcut);
   return (

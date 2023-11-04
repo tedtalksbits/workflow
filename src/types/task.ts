@@ -12,6 +12,7 @@ export type Task = {
   projectId: string;
 };
 
+export type TaskFrequency = '1 DAY' | '1 WEEK' | '1 MONTH' | '1 YEAR' | '';
 export type TaskStatus = 'todo' | 'inProgress' | 'done';
 export type TaskPriority = 'low' | 'medium' | 'high';
 
