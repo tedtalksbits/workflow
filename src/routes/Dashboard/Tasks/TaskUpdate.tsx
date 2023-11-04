@@ -223,6 +223,7 @@ export const TaskUpdate = ({ task, onMutate, projectId }: TaskUpdateProps) => {
                 <div className='form-group'>
                   <Label htmlFor='newTaskDueDate'>Due Date</Label>
                   <Input
+                    className='inline-block'
                     id='newTaskDueDate'
                     type='datetime-local'
                     name='dueDate'
