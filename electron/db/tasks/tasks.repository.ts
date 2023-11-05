@@ -1,6 +1,5 @@
 import { connect } from '../config';
-import { Task, TaskFrequency } from '../../../src/types/task';
-import { uuid } from '../../../src/utils/uuid';
+import { Task } from '../../../src/types/task';
 const TASKS_TABLE = 'tasks';
 export const repository = {
   async selectAll() {
