@@ -211,7 +211,7 @@ export const Login = () => {
                   setFormData({ ...formData, database: e.target.value });
                 }}
               >
-                {databases.map((db) => (
+                {databases?.map((db) => (
                   <option key={db.Database} value={db.Database}>
                     {db.Database}
                   </option>
