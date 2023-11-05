@@ -155,7 +155,7 @@ export const ProjectUpdate = ({ project, onMutate }: ProjectUpdateProps) => {
                     </AlertDialogTitle>
                     <AlertDialogDescription>
                       This action cannot be undone. This will permanently delete
-                      your account and remove your data from our servers.
+                      your this project and all its tasks.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
