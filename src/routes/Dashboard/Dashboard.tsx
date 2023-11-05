@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/command';
 import { useShortcuts } from '@/hooks/useShortcuts';
 import { NewTaskDialog } from './Tasks/NewTask';
+import { useProjects } from './hooks/useProjects';
 export interface Dialogs {
   newProject: boolean;
   command: boolean;
@@ -22,10 +23,12 @@ export interface Dialogs {
 }
 
 export const Dashboard = () => {
-  const [projects, setProjects] = React.useState<Project[]>([]);
-  const [selectedProjectId, setSelectedProjectId] = React.useState<
-    number | null
-  >(null);
+  // const [projects, setProjects] = React.useState<Project[]>([]);
+  // const [selectedProjectId, setSelectedProjectId] = React.useState<
+  //   number | null
+  // >(null);
+  const { projects, setProjects, selectedProjectId, handleProjectSelect } =
+    useProjects();
   const [dialogs, setDialogs] = React.useState<Dialogs>({
     newProject: false,
     command: false,
@@ -54,7 +57,7 @@ export const Dashboard = () => {
           <ProjectsList
             setProjects={setProjects}
             projects={projects}
-            onSelectProjectId={setSelectedProjectId}
+            onSelectProjectId={handleProjectSelect}
             selectedProjectId={selectedProjectId}
           />
         </div>
