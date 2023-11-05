@@ -6,7 +6,9 @@ export const repository = {
     if (!connection) {
       return null;
     }
-    const [rows] = await connection.query(`SELECT * FROM ${PROJECT_TABLE}`);
+    const [rows] = await connection.query(
+      `SELECT * FROM ${PROJECT_TABLE} ORDER BY createdAt DESC`
+    );
     return rows;
   },
   async select<T extends Record<string, unknown>>(fields: string[], where: T) {
