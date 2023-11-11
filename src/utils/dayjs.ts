@@ -9,3 +9,12 @@ const timeFromNow = (date: string) => {
 export const dayjsUtils = {
   timeFromNow,
 };
+
+export function getLocalDateTime(date: Date | string | null | undefined) {
+  if (!date) return '';
+  if (typeof date === 'string') {
+    date = new Date(date);
+  }
+  const offset = date.getTimezoneOffset() * 60000;
+  return new Date(date.getTime() - offset).toISOString().slice(0, 16);
+}
