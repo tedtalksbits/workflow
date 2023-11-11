@@ -15,6 +15,15 @@ import {
 } from '@/components/ui/command';
 import { useShortcuts } from '@/hooks/useShortcuts';
 import { NewTaskDialog } from './Tasks/NewTask';
+import { Kdb } from '@/components/ui/kdb';
+import {
+  BoxIcon,
+  BoxModelIcon,
+  PlusIcon,
+  ValueNoneIcon,
+} from '@radix-ui/react-icons';
+import { Logo } from '@/components/logo/Logo';
+import { Button } from '@/components/ui/button';
 export interface Dialogs {
   newProject: boolean;
   command: boolean;
@@ -46,10 +55,12 @@ export const Dashboard = () => {
       <div className='sidebar h-full border-r w-[25%] max-w-[300px]'>
         <div className='projects-container'>
           <NewProjectDialog
-            onMutate={setProjects}
+            setProjects={setProjects}
             projects={projects}
             dialogs={dialogs}
             setDialogs={setDialogs}
+            onSelectProjectId={setSelectedProjectId}
+            selectedProjectId={selectedProjectId}
           />
           <ProjectsList
             setProjects={setProjects}
@@ -61,24 +72,51 @@ export const Dashboard = () => {
       </div>
       <div className='content flex-1'>
         <DashboardHeader />
-        <div className='p-4'>
-          <div className='flex'>
-            <div className='ml-auto mb-4'>
-              <NewTaskDialog
-                dialogs={dialogs}
-                setDialogs={setDialogs}
-                projectId={selectedProjectId}
-                onMutate={setTasks}
-              />
+        {projects.length === 0 ? (
+          <div className='flex items-center justify-center mt-[120px]'>
+            <div className='text-center'>
+              <div className='flex items-start justify-center gap-2 mb-8'>
+                <span className='text-4xl font-bold mb-4'>Welcome to</span>
+                <Logo variant='medium' className='animate-in w-fit' />
+              </div>
+              <p className='text-xl mb-4 text-foreground/90'>
+                To get started, create a new project by clicking the button
+                below
+              </p>
+              <Button
+                className='animate-in'
+                onClick={() => setDialogs({ ...dialogs, newProject: true })}
+              >
+                <PlusIcon className='mr-3' />
+                New Project
+              </Button>
+              <small className='text-foreground/60 block mt-8'>
+                You can also use the <span className='font-bold'>Command</span>{' '}
+                shortcut to open the command palette. <Kdb>ctrl</Kdb> +{' '}
+                <Kdb>k</Kdb>
+              </small>
             </div>
           </div>
-          <TasksList
-            tasks={tasks}
-            setTasks={setTasks}
-            selectedProjectId={selectedProjectId}
-            key={selectedProjectId}
-          />
-        </div>
+        ) : (
+          <div className='p-4'>
+            <div className='flex'>
+              <div className='ml-auto mb-4'>
+                <NewTaskDialog
+                  dialogs={dialogs}
+                  setDialogs={setDialogs}
+                  projectId={selectedProjectId}
+                  onMutate={setTasks}
+                />
+              </div>
+            </div>
+            <TasksList
+              tasks={tasks}
+              setTasks={setTasks}
+              selectedProjectId={selectedProjectId}
+              key={selectedProjectId}
+            />
+          </div>
+        )}
       </div>
       <CommandDialog
         open={dialogs.command}
