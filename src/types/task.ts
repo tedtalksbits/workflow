@@ -10,6 +10,8 @@ export type Task = {
   assignee: string;
   dueDate: Date | null;
   projectId: string;
+  isRecurring: boolean;
+  eventName?: string;
 };
 
 export type TaskFrequency = '1 DAY' | '1 WEEK' | '1 MONTH' | '1 YEAR' | '';

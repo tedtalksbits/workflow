@@ -84,21 +84,24 @@ export const repository = {
         IN priority enum('low','medium','high'),
         IN assignee VARCHAR(255),
         IN dueDate DATETIME,
-        IN tags VARCHAR(255)
+        IN tags VARCHAR(255),
+        IN isRecurring BOOLEAN,
+        IN eventName VARCHAR(255)
       )
       BEGIN
-        INSERT INTO tasks (projectId, title, description, priority, assignee, dueDate, tags)
-        VALUES (projectId, title, description, priority, assignee, dueDate, tags);
+        INSERT INTO tasks (projectId, title, description, priority, assignee, dueDate, tags, isRecurring, eventName)
+        VALUES (projectId, title, description, priority, assignee, dueDate, tags, isRecurring, eventName);
       END
     `);
-    // create event calling sp_taskInsertDaily
 
-    const eventName = `taskInsertDaily_${sanitizeTitle(data.title)}`;
+    // create event calling sp_taskInsertDaily
+    const eventName = `event_${sanitizeTitle(data.title)}`;
     console.log('eventName', eventName);
+    await connection.query(`DROP EVENT IF EXISTS ${eventName};`);
     const [rows] = await connection.query(
       `CREATE EVENT IF NOT EXISTS ${eventName} ON SCHEDULE EVERY ${frequency} STARTS '${
         startDate || 'CURRENT_TIMESTAMP'
-      }' DO CALL sp_taskInsert(?, ?, ?, ?, ?, ?, ?)`,
+      }' DO CALL sp_taskInsert(?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         data.projectId,
         data.title,
@@ -107,6 +110,8 @@ export const repository = {
         data.assignee,
         data.dueDate,
         data.tags,
+        true,
+        eventName,
       ]
     );
     console.log('create event res', rows);
@@ -119,9 +124,10 @@ export const repository = {
 };
 
 function sanitizeTitle(title: string) {
+  const currMilliseconds = new Date().getTime();
   // remove special characters
   title = title.replace(/[^\w\s]/gi, '');
   // remove spaces
   title = title.replace(/\s/g, '');
-  return title;
+  return title + '_' + currMilliseconds;
 }
