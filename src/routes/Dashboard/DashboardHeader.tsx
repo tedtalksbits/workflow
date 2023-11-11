@@ -8,7 +8,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
-import { GearIcon } from '@radix-ui/react-icons';
+import { GearIcon, Pencil2Icon } from '@radix-ui/react-icons';
 import { SystemInfo } from 'electron/db/app/appListeners';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -60,9 +60,15 @@ export const DashboardHeader = () => {
                   </p>
                 </div>
               </div>
+              <Separator />
+              <p>Settings</p>
               <Button onClick={() => navigate('/login')}>
                 <GearIcon className='w-4 h-4 mr-2' />
                 Configure Database
+              </Button>
+              <Button onClick={() => navigate('/recurring-tasks')}>
+                <Pencil2Icon className='w-4 h-4 mr-2' />
+                Edit Recurring Tasks
               </Button>
             </div>
           </PopoverContent>

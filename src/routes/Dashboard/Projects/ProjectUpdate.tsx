@@ -30,8 +30,13 @@ import { useToast } from '@/components/ui/use-toast';
 type ProjectUpdateProps = {
   project: Project;
   onMutate: (projects: Project[]) => void;
+  onSelectProjectId: (projectId: number) => void;
 };
-export const ProjectUpdate = ({ project, onMutate }: ProjectUpdateProps) => {
+export const ProjectUpdate = ({
+  project,
+  onMutate,
+  onSelectProjectId,
+}: ProjectUpdateProps) => {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
 
@@ -52,6 +57,7 @@ export const ProjectUpdate = ({ project, onMutate }: ProjectUpdateProps) => {
       );
       console.log(updatedProjects);
       onMutate(updatedProjects);
+
       toast({
         title: 'Project updated',
         description: 'Project ' + project.name + ' has been updated',
@@ -71,6 +77,8 @@ export const ProjectUpdate = ({ project, onMutate }: ProjectUpdateProps) => {
     try {
       const res = await window.electron.projects.delete(project.id);
       onMutate(res);
+      // res could be empty if there are no projects after deletion
+      onSelectProjectId(res[0]?.id);
       toast({
         title: 'Project deleted',
         description: 'Project ' + project.name + ' has been deleted',
@@ -78,6 +86,7 @@ export const ProjectUpdate = ({ project, onMutate }: ProjectUpdateProps) => {
       });
       setOpen(false);
     } catch (e) {
+      console.log('delete catch', e);
       const err = e as Error;
       toast({
         title: 'Failed to delete project',
@@ -100,8 +109,7 @@ export const ProjectUpdate = ({ project, onMutate }: ProjectUpdateProps) => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              <span className='text-foreground/50'>Project:</span>{' '}
-              {project.name}
+              <span>Update Project</span>
             </DialogTitle>
             <DialogDescription>
               This will mutate the project and all its data. This action is

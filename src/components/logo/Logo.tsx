@@ -1,9 +1,34 @@
 import logo from '@/assets/icon-full.svg';
+import { cn } from '@/lib/utils';
+import { VariantProps, cva } from 'class-variance-authority';
 
-export const Logo = () => {
+const logoVariants = cva('w-full object-contain', {
+  variants: {
+    variant: {
+      default: 'h-9',
+      small: 'h-6',
+      medium: 'h-12',
+      large: 'h-16',
+    },
+  },
+  defaultVariants: {
+    variant: 'default',
+  },
+});
+
+export interface LogoProps
+  extends React.HTMLAttributes<HTMLImageElement>,
+    VariantProps<typeof logoVariants> {}
+
+function Logo({ className, variant, ...props }: LogoProps) {
   return (
-    <div className='flex items-center my-2'>
-      <img src={logo} alt='logo' className='w-full object-contain h-9' />
-    </div>
+    <img
+      className={cn(logoVariants({ variant }), className)}
+      {...props}
+      src={logo}
+      alt='Keepr'
+    />
   );
-};
+}
+
+export { Logo, logoVariants };

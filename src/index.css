@@ -129,24 +129,24 @@
   }
 
   .dark {
-    --background: 200 6% 9%;
+    --background: 0, 0%, 11%;
     --foreground: 0 0% 98%;
-    --card: 204 6% 15%;
+    --card: 0, 0%, 15%;
     --card-foreground: 0 0% 98%;
-    --popover: 204 6% 15%;
+    --popover: 0, 0%, 15%;
     --popover-foreground: 0 0% 98%;
     --primary: 251 70% 54%;
     --primary-foreground: 0 0% 99%;
-    --secondary: 204 6% 15%;
+    --secondary: 0, 0%, 15%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 204 6% 12%;
+    --muted: 0, 0%, 9.5%;
     --muted-foreground: 0 0% 63.9%;
-    --accent: 204 6% 19%;
+    --accent: 0, 0%, 19%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 204 6% 14%;
-    --input: 204 6% 14%;
+    --border: 0, 0%, 15%;
+    --input: 0, 0%, 15%;
     --ring: 251 70% 54%;
     --success: 135, 70%, 52%;
     --success-foreground: 0 0% 8%;
@@ -359,6 +359,29 @@
   }
   textarea {
     @apply bg-muted;
+  }
+
+  /*
+    ========================================
+    COOL CSS ANIMATIONS
+    ========================================
+  */
+
+  /* bounce... spin, bounce */
+  @keyframes bounceAndSpin {
+    0% {
+      transform: scale(1) rotate(0deg);
+    }
+    50% {
+      transform: scale(1.2) rotate(180deg);
+    }
+    100% {
+      transform: scale(1) rotate(360deg);
+    }
+  }
+
+  .bounce-and-spin {
+    animation: bounceAndSpin 2s;
   }
 }
 
