@@ -18,14 +18,17 @@ import { useShortcuts } from '@/hooks/useShortcuts';
 import { Dialogs } from '../Dashboard';
 type NewProjectDialogProps = {
   projects: Project[];
-  onMutate: (projects: Project[]) => void;
+  setProjects: (projects: Project[]) => void;
   dialogs: Dialogs;
   setDialogs: (dialogs: Dialogs) => void;
+  onSelectProjectId: (projectId: number) => void;
+  selectedProjectId: number | null;
 };
 export const NewProjectDialog = ({
-  onMutate,
+  setProjects,
   dialogs,
   setDialogs,
+  onSelectProjectId,
 }: NewProjectDialogProps) => {
   const { toast } = useToast();
 
@@ -40,7 +43,8 @@ export const NewProjectDialog = ({
 
     try {
       const res = await window.electron.projects.add(project);
-      onMutate(res);
+      setProjects(res);
+      onSelectProjectId(res[0].id);
       toast({
         title: 'Project added',
         description: 'Project ' + project.name + ' has been added',

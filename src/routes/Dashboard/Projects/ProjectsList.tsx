@@ -6,7 +6,6 @@ import { dayjsUtils } from '@/utils/dayjs';
 import { Kdb } from '@/components/ui/kdb';
 import { useShortcuts } from '@/hooks/useShortcuts';
 import { SystemInfo } from 'electron/db/app/appListeners';
-import { Dialogs } from '../Dashboard';
 type NavbarProps = {
   projects: Project[];
   onSelectProjectId: (projectId: number) => void;
@@ -79,7 +78,11 @@ export const ProjectsList = ({
               </div>
             </li>
             <div className='pr-4 py-2 opacity-0 group-hover/nav-item:opacity-100 transition-opacity duration-300 ease-in-out'>
-              <ProjectUpdate project={project} onMutate={setProjects} />
+              <ProjectUpdate
+                project={project}
+                onMutate={setProjects}
+                onSelectProjectId={onSelectProjectId}
+              />
             </div>
           </div>
         ))}
