@@ -10,9 +10,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
-import { Textarea } from '@/components/ui/textarea';
 import { ArrowRightIcon, CalendarIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
 import { Task, priorityColors, statusColors } from '@/types/task';
@@ -23,36 +21,20 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Zone } from '@/components/zone/Zone';
 import { useToast } from '@/components/ui/use-toast';
 import Indicator from '@/components/ui/indicator';
-import { Label } from '@/components/ui/label';
-import { CustomTagSelect } from '@/components/customSelects/CustomTagSelect';
-import { dTFns } from '@/lib/utils';
+import { TaskForm, TaskFormOnSubmit } from './TaskForm';
 type TaskUpdateProps = {
   task: Task;
   onMutate: (tasks: Task[]) => void;
   projectId: number | null;
 };
 export const TaskUpdate = ({ task, onMutate, projectId }: TaskUpdateProps) => {
-  const [tags, setTags] = useState<string>(task.tags);
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
-  const handleUpdateTask = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData.entries()) as Partial<Task>;
-    if (!data.dueDate) data.dueDate = null;
-    console.log(data.dueDate);
-
+  const handleUpdateTask: TaskFormOnSubmit = async (data) => {
     try {
       if (!projectId)
         return toast({
@@ -60,7 +42,7 @@ export const TaskUpdate = ({ task, onMutate, projectId }: TaskUpdateProps) => {
           description: 'No project id',
           variant: 'destructive',
         });
-      await window.electron.tasks.update(task.id, data);
+      await window.electron.tasks.update(task.id, data.task);
       const updatedTasks = await window.electron.tasks.getByProjectId(
         projectId
       );
@@ -117,127 +99,12 @@ export const TaskUpdate = ({ task, onMutate, projectId }: TaskUpdateProps) => {
         <SheetContent className='min-w-[100%] md:min-w-[800px]'>
           <SheetHeader>
             <SheetTitle className='py-4'>
-              <span className='text-xl font-extrabold'>{task.title}</span>
+              <span className='text-xl font-bold'>Update Task</span>
             </SheetTitle>
           </SheetHeader>
           <Tabs defaultValue='view' className='my-4'>
             <TabsContent value='update' className='my-4'>
-              <form onSubmit={handleUpdateTask} className='flex flex-col gap-3'>
-                <div className='form-group'>
-                  <Label htmlFor={task.id + 'title'}>Title</Label>
-                  <Input
-                    type='text'
-                    name='title'
-                    placeholder='title'
-                    id={task.id + 'title'}
-                    autoFocus
-                    required
-                    defaultValue={task.title}
-                  />
-                </div>
-                <div className='form-group'>
-                  <Label htmlFor={`${task.id}description`}>Description</Label>
-                  <Textarea
-                    name='description'
-                    placeholder='description'
-                    rows={5}
-                    id={`${task.id}description`}
-                    defaultValue={task.description}
-                  />
-                </div>
-                <div className='form-group'>
-                  <Label htmlFor={task.id + 'status'}>Status</Label>
-                  <Select name='status' defaultValue={task.status}>
-                    <SelectTrigger>
-                      <SelectValue
-                        placeholder={
-                          <>
-                            <Indicator
-                              className={`${
-                                task.status === 'todo'
-                                  ? statusColors.todo
-                                  : task.status === 'inProgress'
-                                  ? statusColors.inProgress
-                                  : `${statusColors.done}`
-                              }`}
-                            />
-                            {task.status}
-                          </>
-                        }
-                      />
-                    </SelectTrigger>
-                    <SelectContent id={task.id + 'status'}>
-                      <SelectItem value='todo'>
-                        <Indicator className={statusColors.todo} />
-                        Todo
-                      </SelectItem>
-                      <SelectItem value='inProgress'>
-                        <Indicator className={statusColors.inProgress} />
-                        In Progress
-                      </SelectItem>
-                      <SelectItem value='done'>
-                        <Indicator className={statusColors.done} />
-                        Done
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className='form-group'>
-                  <Label htmlFor={task.id + 'priority'}>Priority</Label>
-                  <Select name='priority' defaultValue={task.priority}>
-                    <SelectTrigger>
-                      <SelectValue
-                        placeholder={
-                          <>
-                            {' '}
-                            <Indicator
-                              className={`${
-                                task.priority === 'low'
-                                  ? priorityColors.low
-                                  : task.priority === 'medium'
-                                  ? priorityColors.medium
-                                  : priorityColors.high
-                              }`}
-                            />
-                            {task.priority}
-                          </>
-                        }
-                      />
-                    </SelectTrigger>
-                    <SelectContent id={task.id + 'priority'}>
-                      <SelectItem value='low' defaultValue={task.priority}>
-                        <Indicator className={priorityColors.low} />
-                        Low
-                      </SelectItem>
-                      <SelectItem defaultValue={task.priority} value='medium'>
-                        <Indicator className={priorityColors.medium} />
-                        Medium
-                      </SelectItem>
-                      <SelectItem defaultValue={task.priority} value='high'>
-                        <Indicator className={priorityColors.high} />
-                        High
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className='form-group'>
-                  <Label htmlFor='newTaskDueDate'>Due Date</Label>
-                  <Input
-                    className='inline-block'
-                    id='newTaskDueDate'
-                    type='datetime-local'
-                    name='dueDate'
-                    placeholder='due date'
-                    defaultValue={dTFns.toLocalDateTime(task?.dueDate) || ''}
-                  />
-                </div>
-                <div className='form-group'>
-                  <CustomTagSelect setTags={setTags} tags={tags} />
-                </div>
-                <div className='form-footer'>
-                  <Button type='submit'>Update</Button>
-                </div>
-              </form>
+              <TaskForm onSubmit={handleUpdateTask} task={task} />
               <Separator className='my-20' />
               <h2 className='font-bold my-2'>Danger Zone</h2>
               <Zone variant='destructive'>
