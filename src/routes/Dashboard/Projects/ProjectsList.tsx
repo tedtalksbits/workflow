@@ -59,7 +59,7 @@ export const ProjectsList = ({
         </Kdb>
       </div>
       <ul className='mt-4'>
-        {filteredProjects.map((project) => (
+        {filteredProjects?.map((project) => (
           <div
             key={project.id}
             className={`${
