@@ -10,19 +10,19 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Project } from '@/types/projects';
+import { IProject } from '@/types/projects';
 import React, { useCallback } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { FileTextIcon, PlusIcon } from '@radix-ui/react-icons';
 import { useShortcuts } from '@/hooks/useShortcuts';
 import { Dialogs } from '../Dashboard';
 type NewProjectDialogProps = {
-  projects: Project[];
-  setProjects: (projects: Project[]) => void;
+  projects: IProject[];
+  setProjects: (projects: IProject[]) => void;
   dialogs: Dialogs;
   setDialogs: (dialogs: Dialogs) => void;
-  onSelectProjectId: (projectId: number) => void;
-  selectedProjectId: number | null;
+  onSelectProjectId: (projectId: string) => void;
+  selectedProjectId: string | null;
 };
 export const NewProjectDialog = ({
   setProjects,
@@ -36,15 +36,15 @@ export const NewProjectDialog = ({
     e.preventDefault();
 
     const formData = new FormData(e.currentTarget);
-    const project: Partial<Project> = {
+    const project: Partial<IProject> = {
       name: formData.get('name') as string,
       description: formData.get('description') as string,
     };
 
     try {
       const res = await window.electron.projects.add(project);
-      setProjects(res);
-      onSelectProjectId(res[0].id);
+      setProjects(res.data);
+      onSelectProjectId(res.data[0].id);
       toast({
         title: 'Project added',
         description: 'Project ' + project.name + ' has been added',

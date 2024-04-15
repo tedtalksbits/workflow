@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import {
-  Task,
+  ITask,
   TaskFrequency,
   priorityColors,
   statusColors,
@@ -28,11 +28,11 @@ import React from 'react';
 
 interface TaskFormProps {
   onSubmit: TaskFormOnSubmit;
-  task?: Task;
+  task?: ITask;
 }
 export type TaskFormOnSubmit = (data: Data) => void;
 type Data = {
-  task: Partial<Task>;
+  task: Partial<ITask>;
   recurringData: {
     frequency: TaskFrequency;
     startDate: string;
@@ -52,7 +52,7 @@ export const TaskForm = ({ onSubmit, task }: TaskFormProps) => {
   const handleAddTask = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const newTask = Object.fromEntries(formData.entries()) as Partial<Task>;
+    const newTask = Object.fromEntries(formData.entries()) as Partial<ITask>;
     if (!newTask.dueDate) newTask.dueDate = null;
     const data = {
       task: newTask,

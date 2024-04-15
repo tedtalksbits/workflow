@@ -1,5 +1,5 @@
-export type Task = {
-  id: number;
+export type ITask = {
+  id: string;
   title: string;
   description: string;
   status: TaskStatus;

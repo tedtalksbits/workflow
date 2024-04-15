@@ -7,17 +7,17 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { Task } from '@/types/task';
+import { ITask } from '@/types/task';
 import { useCallback, useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { useShortcuts } from '@/hooks/useShortcuts';
 import { PlusIcon } from '@radix-ui/react-icons';
-import { SystemInfo } from 'electron/db/app/appListeners';
+import { SystemInfo } from 'electron/app/appListeners';
 import { Dialogs } from '../Dashboard';
 import { TaskForm, TaskFormOnSubmit } from './TaskForm';
 type NewTaskDialogProps = {
-  onMutate: (tasks: Task[]) => void;
-  projectId: number | null;
+  onMutate: (tasks: ITask[]) => void;
+  projectId: string | null;
   dialogs: Dialogs;
   setDialogs: (dialogs: Dialogs) => void;
 };
@@ -49,7 +49,7 @@ export const NewTaskDialog = ({
       }
 
       const tasks = await window.electron.tasks.getByProjectId(projectId);
-      onMutate(tasks);
+      onMutate(tasks.data);
       toast({
         title: 'Task added',
         description: 'Task ' + data.task.title + ' has been added',

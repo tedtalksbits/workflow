@@ -1,242 +1,121 @@
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
-import { Logo } from '@/components/logo/Logo';
-import { Separator } from '@/components/ui/separator';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
 import {
-  EyeClosedIcon,
-  EyeOpenIcon,
-  LockClosedIcon,
-} from '@radix-ui/react-icons';
-import { useCallback, useEffect, useState } from 'react';
-import { Connection } from 'electron/db/types/connection';
-import { useToast } from '@/components/ui/use-toast';
-import useConfig from '@/hooks/useConfig';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { EyeClosedIcon, EyeOpenIcon } from '@radix-ui/react-icons';
+import React, { useRef, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from './hooks/useAuth';
+import { LocationState } from '@/types/react-router-dom';
+import { toast } from 'sonner';
 export const Login = () => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
-  const [config, setConfig] = useState<Connection | null>(null);
-  const [formData, setFormData] = useState<Connection>({
-    port: 3306,
-    database: '',
-    host: '',
-    password: '',
-    user: '',
-    shouldCreateDB: false,
-  });
-  const [databases, setDatabases] = useState<{ Database: string }[]>([]);
-  const handleConfigChange = useCallback((config: Connection) => {
-    console.log('config change effect ran');
-    setConfig(config);
-    setFormData(config);
-  }, []);
-
-  useConfig(handleConfigChange);
-
-  const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
+  const { login } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const state = location.state as LocationState;
+  const from = state?.from;
+  const pwRef = useRef<HTMLInputElement>(null);
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(formData, 'form data');
-    const res = await window.electron.ipcRenderer.invoke('connect', formData);
-    if (res.success) {
-      console.log(res);
-      localStorage.setItem('config', JSON.stringify(formData));
-      window.location.reload();
-      toast({
-        title: 'Connected to database',
-        description:
-          'You are now connected to your database ' + formData.database,
-      });
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+    const credentials = {
+      username: data.username as string,
+      password: data.password as string,
+    };
 
-      const connection = await window.electron.ipcRenderer.invoke(
-        'get:connection'
-      );
-      setConfig(connection);
-    } else {
+    console.log(credentials);
+    login(credentials, (res) => {
       console.log(res);
-      toast({
-        title: 'Failed to connect to database',
-        description: res.message,
-        variant: 'destructive',
-      });
-    }
+      if (res.success) {
+        toast.success('Login successful!');
+        navigate(from ? from.pathname : '/dashboard');
+      } else {
+        toast.error('Login failed!', {
+          description: res.message as string,
+        });
+        pwRef.current && pwRef.current.focus();
+      }
+    });
   };
-
-  useEffect(() => {
-    async function getDatabases() {
-      const res = await window.electron.db.getDatabases();
-      console.log(res);
-      setDatabases(res);
-    }
-    getDatabases();
-  }, []);
-
   return (
-    <div className='h-[80vh] flex justify-center items-center flex-col'>
-      <form
-        className='p-10 border rounded-xl flex flex-col gap-4 max-w-xl mx-auto bg-foreground/5 w-full'
-        onSubmit={handleSignIn}
-      >
-        <div className='form-info flex flex-col gap-2 text-center'>
-          <Logo />
-          <div className='my-8'>
-            <div className='flex gap-1 items-start justify-center'>
-              <span>
-                <LockClosedIcon className='inline-block h-6 w-6' />
-              </span>
-              <h1 className='text-2xl font-bold mb-2'>
-                Connect Your MySQL Database
-              </h1>
-            </div>
-            <p className='text-foreground/40 text-xs'>
-              Your database credentials are stored locally on your machine.
+    <form onSubmit={handleLogin}>
+      <Card className='max-w-xl mx-auto mt-[200px] overflow-hidden'>
+        {from && (
+          <div className='bg-foreground/10 p-2'>
+            <p className='text-foreground/70'>
+              You must log in to view the page at {from.pathname}
             </p>
           </div>
-        </div>
-        <Separator />
-        <div className='flex flex-row items-center justify-between gap-2'>
-          <div className='form-group flex-1'>
-            <Label htmlFor='hostname'>Hostname</Label>
+        )}
+        <CardHeader>
+          <CardTitle className='text-2xl'>Login</CardTitle>
+          <CardDescription>
+            Enter your username and password to login to your account.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className='space-y-4'>
+          <div className='space-y-2'>
+            <Label htmlFor='username'>Username</Label>
             <Input
+              name='username'
+              id='username'
+              placeholder='Enter your username'
               required
-              type='hostname'
-              id='hostname'
-              placeholder='localhost'
-              value={formData?.host || ''}
-              onChange={(e) =>
-                setFormData({ ...formData, host: e.target.value })
-              }
+              type='text'
             />
           </div>
-          <div className='form-group'>
-            <Label htmlFor='port'>Port</Label>
-            <Input
-              required
-              type='port'
-              id='port'
-              placeholder='3306'
-              value={formData?.port || ''}
-              onChange={(e) => {
-                setFormData({ ...formData, port: parseInt(e.target.value) });
-              }}
-            />
-          </div>
-        </div>
-        <div className='form-group'>
-          <Label htmlFor='user'>User</Label>
-          <Input
-            required
-            type='user'
-            id='user'
-            placeholder='root'
-            value={formData?.user || ''}
-            onChange={(e) => {
-              setFormData({ ...formData, user: e.target.value });
-            }}
-          />
-        </div>
-        <div className='form-group'>
-          <Label htmlFor='password'>Password</Label>
-          <div className='password relative'>
-            <Input
-              required
-              type={showPassword ? 'text' : 'password'}
-              id='password'
-              placeholder='your password'
-              value={formData?.password || ''}
-              onChange={(e) => {
-                setFormData({ ...formData, password: e.target.value });
-              }}
-            />
-            <Label
-              className='password-toggle absolute right-0 top-0 bottom-0 flex items-center justify-center w-10 h-10 text-foreground/50'
-              htmlFor='password-toggle'
-              aria-label='Show password as plain text. Warning: this will display your password on the screen.'
-            >
-              {showPassword ? (
-                <EyeClosedIcon onClick={() => setShowPassword(!showPassword)} />
-              ) : (
-                <EyeOpenIcon onClick={() => setShowPassword(!showPassword)} />
-              )}
-            </Label>
-          </div>
-        </div>
-        <Separator />
-        <div className='form-group'>
-          <Label htmlFor='database'>
-            Database (Create a new schema or choose from existing schemas)
-          </Label>
-          <Tabs defaultValue='new'>
-            <TabsList>
-              <TabsTrigger value='new'>New</TabsTrigger>
-              <TabsTrigger value='select'>Select</TabsTrigger>
-            </TabsList>
-            <TabsContent value='new'>
+          <div className='space-y-2'>
+            <Label htmlFor='password'>Password</Label>
+            <div className='relative'>
               <Input
+                name='password'
+                id='password'
                 required
-                type='text'
-                id='database'
-                placeholder='your schema'
-                value={formData?.database || ''}
-                onChange={(e) => {
-                  setFormData({ ...formData, database: e.target.value });
-                }}
+                type={showPassword ? 'text' : 'password'}
+                ref={pwRef}
               />
-              <div className='flex mt-4 gap-2'>
-                <Label htmlFor='shouldCreateDB'>
-                  Create DB if doesn't exist?
-                </Label>
-
-                <input
-                  type='checkbox'
-                  id='shouldCreateDB'
-                  checked={formData?.shouldCreateDB || false}
-                  onChange={(e) => {
-                    setFormData({
-                      ...formData,
-                      shouldCreateDB: e.target.checked,
-                    });
-                  }}
-                />
-              </div>
-            </TabsContent>
-            <TabsContent value='select'>
-              <select
-                name='database'
-                id='database'
-                onChange={(e) => {
-                  setFormData({ ...formData, database: e.target.value });
-                }}
+              <Label
+                className='password-toggle absolute right-0 top-0 bottom-0 flex items-center justify-center w-10 h-10 cursor-pointer text-foreground/50'
+                htmlFor='password-toggle'
+                aria-label='Show password as plain text. Warning: this will display your password on the screen.'
               >
-                {databases?.map((db) => (
-                  <option key={db.Database} value={db.Database}>
-                    {db.Database}
-                  </option>
-                ))}
-              </select>
-            </TabsContent>
-          </Tabs>
-        </div>
-
-        <div className='form-footer'>
-          <div className='flex justify-between items-center'>
-            {config && (
-              <Button variant='outline' onClick={() => navigate('/')}>
-                Keep Current Config
-              </Button>
-            )}
-            <Button
-              type='submit'
-              disabled={config?.database === formData?.database}
-            >
-              Connect
-            </Button>
+                {showPassword ? (
+                  <EyeClosedIcon
+                    onClick={() => setShowPassword(!showPassword)}
+                  />
+                ) : (
+                  <EyeOpenIcon onClick={() => setShowPassword(!showPassword)} />
+                )}
+              </Label>
+            </div>
           </div>
-        </div>
-      </form>
-    </div>
+        </CardContent>
+        <CardFooter className='flex flex-col'>
+          <Button type='submit' className='w-full'>
+            Login
+          </Button>
+          <div className='mt-8 w-full flex gap-2'>
+            <p className='text-foreground/70'>Don't have an account?</p>
+            <Link
+              className='text-primary'
+              to='/register'
+              state={{ request: 'register' }}
+            >
+              Register
+            </Link>
+          </div>
+        </CardFooter>
+      </Card>
+    </form>
   );
 };

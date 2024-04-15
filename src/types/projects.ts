@@ -1,10 +1,13 @@
-export type Project = {
+import { ITask } from './task';
+
+export type IProject = {
   name: string;
   icon: string;
   description: string;
-  id: number;
+  id: string;
   tags: string;
   createdAt: Date;
   updatedAt: Date;
   members: string[];
+  tasks: ITask[];
 };

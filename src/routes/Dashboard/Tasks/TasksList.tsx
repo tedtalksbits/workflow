@@ -6,7 +6,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Task, TaskStatus, priorityColors, statusColors } from '@/types/task';
+import { ITask, TaskStatus, priorityColors, statusColors } from '@/types/task';
 import { TableIcon } from '@radix-ui/react-icons';
 import { useEffect, useRef, useState } from 'react';
 import { TaskUpdate } from './TaskUpdate';
@@ -17,12 +17,12 @@ import { Input } from '@/components/ui/input';
 import { dTFns } from '@/lib/utils';
 import { useShortcuts } from '@/hooks/useShortcuts';
 import { Kdb } from '@/components/ui/kdb';
-import { SystemInfo } from 'electron/db/app/appListeners';
+import { SystemInfo } from 'electron/app/appListeners';
 
 type TaskTableProps = {
-  tasks: Task[];
-  setTasks: (tasks: Task[]) => void;
-  selectedProjectId: number | null;
+  tasks: ITask[];
+  setTasks: (tasks: ITask[]) => void;
+  selectedProjectId: string | null;
 };
 
 export const TasksList = ({
@@ -45,7 +45,7 @@ export const TasksList = ({
     if (!selectedProjectId) return;
     window.electron.tasks.getByProjectId(selectedProjectId).then(
       (res) => {
-        setTasks(res);
+        setTasks(res.data);
       },
       (err) => {
         toast({
@@ -92,13 +92,14 @@ export const TasksList = ({
     return priorityMatch || titleMatch || statusMatch || anyMatch || noMatch;
   });
 
-  const handleUpdateTask = async (id: number, update: Partial<Task>) => {
+  const handleUpdateTask = async (id: string, update: Partial<ITask>) => {
+    console.log(id, update);
     if (!selectedProjectId) return console.log('no project id');
     if (!id) return console.log('no task id');
     try {
       await window.electron.tasks.update(id, update);
       const res = await window.electron.tasks.getByProjectId(selectedProjectId);
-      setTasks(res);
+      setTasks(res.data);
       toast({
         title: 'Success!',
         description: 'Task has been updated',
@@ -234,6 +235,7 @@ export const TasksList = ({
                     className='peer checkbox-fancy'
                     checked={task.status === 'done'}
                     onChange={() => {
+                      console.log('clicked');
                       handleUpdateTask(task.id, {
                         status: task.status === 'done' ? 'todo' : 'done',
                       });

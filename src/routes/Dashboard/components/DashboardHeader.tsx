@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
 import { GearIcon, Pencil2Icon } from '@radix-ui/react-icons';
-import { SystemInfo } from 'electron/db/app/appListeners';
+import { SystemInfo } from 'electron/app/appListeners';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 

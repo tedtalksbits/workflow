@@ -1,40 +1,27 @@
-import { AppProvider } from '@/providers/app';
-import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
-import { Login } from './Auth/Login';
-import { Dashboard } from './Dashboard/Dashboard';
-import { useEffect, useState } from 'react';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { Route, Routes } from 'react-router-dom';
+import { LandingRoute } from './LandingRoute';
+import { RouteProtector } from './RouteProtector';
+import { Login, Register } from '@/routes/Auth';
+import { Dashboard, NotFound } from '@/routes/Dashboard';
 
 export const AppRoutes = () => {
-  const [config, setConfig] = useState(null);
-  useEffect(() => {
-    console.log('config effect ran');
-    const getConfig = async () => {
-      const res = await window.electron.ipcRenderer.invoke('get:connection');
-      localStorage.setItem('config', JSON.stringify(res));
-      setConfig(res);
-    };
-    getConfig();
-  }, []);
-  return (
-    <AppProvider>
-      <Router>{config ? <AuthRoutes /> : <NoAuthRoutes />}</Router>
-    </AppProvider>
-  );
-};
-
-const NoAuthRoutes = () => {
   return (
     <Routes>
-      <Route path='/' element={<Login />} />
-    </Routes>
-  );
-};
-
-const AuthRoutes = () => {
-  return (
-    <Routes>
-      <Route path='/' element={<Dashboard />} />
-      <Route path='/login' element={<Login />} />
+      <Route element={<AppLayout />}>
+        <Route path='/' element={<LandingRoute redirectTo='/dashboard' />} />
+        <Route path='/login' element={<Login />} />
+        <Route path='/register' element={<Register />} />
+        <Route
+          path='/dashboard'
+          element={
+            <RouteProtector>
+              <Dashboard />
+            </RouteProtector>
+          }
+        />
+      </Route>
+      <Route path='*' element={<NotFound />} />
     </Routes>
   );
 };

@@ -21,16 +21,16 @@ import {
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
-import { Project } from '@/types/projects';
+import { IProject } from '@/types/projects';
 import { Pencil2Icon } from '@radix-ui/react-icons';
 import { useState } from 'react';
 import { Zone } from '@/components/zone/Zone';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 type ProjectUpdateProps = {
-  project: Project;
-  onMutate: (projects: Project[]) => void;
-  onSelectProjectId: (projectId: number) => void;
+  project: IProject;
+  onMutate: (projects: IProject[]) => void;
+  onSelectProjectId: (projectId: string) => void;
 };
 export const ProjectUpdate = ({
   project,
@@ -46,7 +46,7 @@ export const ProjectUpdate = ({
     const name = formData.get('name') as string;
     const description = formData.get('description') as string;
 
-    const update: Partial<Project> = {
+    const update: Partial<IProject> = {
       name,
       description,
     };
@@ -56,7 +56,7 @@ export const ProjectUpdate = ({
         update
       );
       console.log(updatedProjects);
-      onMutate(updatedProjects);
+      onMutate(updatedProjects.data);
 
       toast({
         title: 'Project updated',
@@ -76,9 +76,9 @@ export const ProjectUpdate = ({
   const handleDeleteProject = async () => {
     try {
       const res = await window.electron.projects.delete(project.id);
-      onMutate(res);
+      onMutate(res.data);
       // res could be empty if there are no projects after deletion
-      onSelectProjectId(res[0]?.id);
+      onSelectProjectId(res.data[0]?.id);
       toast({
         title: 'Project deleted',
         description: 'Project ' + project.name + ' has been deleted',

@@ -1,8 +1,8 @@
 import React from 'react';
 import { ProjectsList } from './Projects/ProjectsList';
-import { Project } from '@/types/projects';
-import { DashboardHeader } from './DashboardHeader';
-import { Task } from '@/types/task';
+import { IProject } from '@/types/projects';
+import { DashboardHeader } from './components/DashboardHeader';
+import { ITask } from '@/types/task';
 import { TasksList } from './Tasks/TasksList';
 import { NewProjectDialog } from './Projects/NewProject';
 import {
@@ -24,6 +24,7 @@ import {
 } from '@radix-ui/react-icons';
 import { Logo } from '@/components/logo/Logo';
 import { Button } from '@/components/ui/button';
+import { AuthHeader } from './components/AuthHeader';
 export interface Dialogs {
   newProject: boolean;
   command: boolean;
@@ -31,16 +32,16 @@ export interface Dialogs {
 }
 
 export const Dashboard = () => {
-  const [projects, setProjects] = React.useState<Project[]>([]);
+  const [projects, setProjects] = React.useState<IProject[]>([]);
   const [selectedProjectId, setSelectedProjectId] = React.useState<
-    number | null
+    string | null
   >(null);
   const [dialogs, setDialogs] = React.useState<Dialogs>({
     newProject: false,
     command: false,
     newTask: false,
   });
-  const [tasks, setTasks] = React.useState<Task[]>([]);
+  const [tasks, setTasks] = React.useState<ITask[]>([]);
   const handleOpenCommand = (e: KeyboardEvent) => {
     if (e.key === 'k' && e.ctrlKey) {
       e.preventDefault();
@@ -71,7 +72,7 @@ export const Dashboard = () => {
         </div>
       </div>
       <div className='content flex-1'>
-        <DashboardHeader />
+        <AuthHeader />
         {projects.length === 0 ? (
           <div className='flex items-center justify-center mt-[120px]'>
             <div className='text-center'>

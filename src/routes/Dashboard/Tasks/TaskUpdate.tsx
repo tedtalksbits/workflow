@@ -13,7 +13,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { ArrowRightIcon, CalendarIcon } from '@radix-ui/react-icons';
 import { useState } from 'react';
-import { Task, priorityColors, statusColors } from '@/types/task';
+import { ITask, priorityColors, statusColors } from '@/types/task';
 import {
   Sheet,
   SheetContent,
@@ -27,9 +27,9 @@ import { useToast } from '@/components/ui/use-toast';
 import Indicator from '@/components/ui/indicator';
 import { TaskForm, TaskFormOnSubmit } from './TaskForm';
 type TaskUpdateProps = {
-  task: Task;
-  onMutate: (tasks: Task[]) => void;
-  projectId: number | null;
+  task: ITask;
+  onMutate: (tasks: ITask[]) => void;
+  projectId: string | null;
 };
 export const TaskUpdate = ({ task, onMutate, projectId }: TaskUpdateProps) => {
   const [open, setOpen] = useState(false);
@@ -47,7 +47,7 @@ export const TaskUpdate = ({ task, onMutate, projectId }: TaskUpdateProps) => {
         projectId
       );
       console.log(updatedTasks);
-      onMutate(updatedTasks);
+      onMutate(updatedTasks.data);
       toast({
         title: 'Task updated',
         description: 'Task ' + task.title + ' has been updated',
@@ -70,7 +70,7 @@ export const TaskUpdate = ({ task, onMutate, projectId }: TaskUpdateProps) => {
         return toast({ title: 'No project id', variant: 'destructive' });
       await window.electron.tasks.delete(task.id);
       const res = await window.electron.tasks.getByProjectId(projectId);
-      onMutate(res);
+      onMutate(res.data);
       toast({
         title: 'Task deleted',
         description: 'Task ' + task.title + ' has been deleted',

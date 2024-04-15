@@ -1,16 +1,16 @@
 import { Input } from '@/components/ui/input';
-import { Project } from '@/types/projects';
+import { IProject } from '@/types/projects';
 import { useEffect, useRef, useState } from 'react';
 import { ProjectUpdate } from './ProjectUpdate';
 import { dayjsUtils } from '@/utils/dayjs';
 import { Kdb } from '@/components/ui/kdb';
 import { useShortcuts } from '@/hooks/useShortcuts';
-import { SystemInfo } from 'electron/db/app/appListeners';
+import { SystemInfo } from 'electron/app/appListeners';
 type NavbarProps = {
-  projects: Project[];
-  onSelectProjectId: (projectId: number) => void;
-  setProjects: (projects: Project[]) => void;
-  selectedProjectId: number | null;
+  projects: IProject[];
+  onSelectProjectId: (projectId: string) => void;
+  setProjects: (projects: IProject[]) => void;
+  selectedProjectId: string | null;
 };
 
 export const ProjectsList = ({
@@ -26,7 +26,7 @@ export const ProjectsList = ({
   );
   useEffect(() => {
     window.electron.projects.get().then((res) => {
-      setProjects(res);
+      setProjects(res.data);
     });
   }, [setProjects]);
 
@@ -52,6 +52,9 @@ export const ProjectsList = ({
           onChange={(e) => setSearchQuery(e.target.value)}
           disabled={projects.length === 0}
           ref={searchInputRef}
+          title={
+            projects.length === 0 ? 'No projects to search' : 'Search projects'
+          }
         />
 
         <Kdb className='peer-active:hidden peer-focus-within:hidden peer-focus:hidden absolute right-3 top-2 flex items-center justify-center bg-foreground/10'>

@@ -1,9 +1,16 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { Project } from '@/types/projects';
-import { Task, TaskFrequency } from '@/types/task';
+import { ITask, TaskFrequency } from '@/types/task';
 import { IpcRendererEvent, contextBridge, ipcRenderer } from 'electron';
-import { SystemInfo } from './db/app/appListeners';
-import { Connection } from './db/types/connection';
+import { SystemInfo } from './app/appListeners';
+import { userChannels } from './user/user.channels';
+import { userServices } from './user/user.services';
+
+import { projectServices } from './project/project.services';
+import { projectChannels } from './project/project.channels';
+import { themeServices } from './theme/theme.services';
+import { themeChannels } from './theme/theme.channels';
+import { taskServices } from './task/task.services';
+import { taskChannels } from './task/task.channels';
 export const ipcRendererWrappers = {
   invoke: async <T>(channel: string, ...args: unknown[]): Promise<T> => {
     return ipcRenderer.invoke(channel, ...args);
@@ -31,58 +38,104 @@ const electronHandler = {
       return ipcRenderer.invoke(channel, ...args);
     },
   },
+  theme: {
+    toggle: (...args: Parameters<typeof themeServices.toggleTheme>) =>
+      ipcRenderer.invoke<ReturnType<typeof themeServices.toggleTheme>>(
+        themeChannels.toggleTheme,
+        ...args
+      ),
+    system: (...args: Parameters<typeof themeServices.setSystemTheme>) =>
+      ipcRenderer.invoke<ReturnType<typeof themeServices.setSystemTheme>>(
+        'dark-mode:system',
+        ...args
+      ),
+  },
+  user: {
+    logIn: async (...args: Parameters<typeof userServices.login>) =>
+      ipcRenderer.invoke<ReturnType<typeof userServices.login>>(
+        userChannels.login,
+        ...args
+      ),
+    signUp: async (...args: Parameters<typeof userServices.register>) =>
+      ipcRenderer.invoke<ReturnType<typeof userServices.register>>(
+        userChannels.register,
+        ...args
+      ),
+    loginLocal: async (...args: Parameters<typeof userServices.loginLocal>) =>
+      ipcRenderer.invoke<ReturnType<typeof userServices.loginLocal>>(
+        userChannels.loginLocal,
+        ...args
+      ),
+    logOut: async (...args: Parameters<typeof userServices.logOut>) =>
+      ipcRenderer.invoke<ReturnType<typeof userServices.logOut>>(
+        userChannels.logOut,
+        ...args
+      ),
+  },
   projects: {
-    get: () => ipcRenderer.invoke('get:projects') as Promise<Project[]>,
-    add: (project: Partial<Project>) =>
-      ipcRenderer.invoke('add:project', project) as Promise<Project[]>,
-    update: (id: number, project: Partial<Project>) =>
-      ipcRenderer.invoke('update:project', id, project) as Promise<Project[]>,
-    delete: (id: number) =>
-      ipcRenderer.invoke('delete:project', id) as Promise<Project[]>,
-    getById: (id: number) =>
-      ipcRenderer.invoke('get:projectById', id) as Promise<Project>,
+    get: async (...args: Parameters<typeof projectServices.getProjects>) =>
+      ipcRenderer.invoke<ReturnType<typeof projectServices.getProjects>>(
+        projectChannels.getProjects,
+        ...args
+      ),
+    add: async (...args: Parameters<typeof projectServices.addProject>) =>
+      ipcRenderer.invoke<ReturnType<typeof projectServices.addProject>>(
+        projectChannels.addProject,
+        ...args
+      ),
+    update: async (...args: Parameters<typeof projectServices.updateProject>) =>
+      ipcRenderer.invoke<ReturnType<typeof projectServices.updateProject>>(
+        projectChannels.updateProject,
+        ...args
+      ),
+    delete: async (...args: Parameters<typeof projectServices.deleteProject>) =>
+      ipcRenderer.invoke<ReturnType<typeof projectServices.deleteProject>>(
+        projectChannels.deleteProject,
+        ...args
+      ),
+    getById: async (
+      ...args: Parameters<typeof projectServices.getProjectById>
+    ) =>
+      ipcRenderer.invoke<ReturnType<typeof projectServices.getProjectById>>(
+        projectChannels.getProjectById,
+        ...args
+      ),
   },
   tasks: {
-    get: () => ipcRenderer.invoke('get:tasks') as Promise<Task[]>,
-    getByProjectId: (id: number) =>
-      ipcRenderer.invoke('get:tasksByProjectId', id) as Promise<Task[]>,
-    add: (projectId: number, task: Partial<Task>) =>
-      ipcRenderer.invoke('add:task', projectId, task) as Promise<Task[]>,
-    update: (id: number, task: Partial<Task>) =>
-      ipcRenderer.invoke('update:task', id, task) as Promise<Task[]>,
-    delete: (id: number) =>
-      ipcRenderer.invoke('delete:task', id) as Promise<Task[]>,
-    getById: (id: number) =>
-      ipcRenderer.invoke('get:taskById', id) as Promise<Task>,
-    addRecurring: (
-      projectId: number,
-      task: Partial<Task>,
-      startDate: string,
-      frequency: TaskFrequency
+    getByProjectId: async (
+      ...args: Parameters<typeof taskServices.getTasksByProjectId>
     ) =>
-      ipcRendererWrappers.invoke<Promise<Task>>(
-        'add:recurring-task',
-        projectId,
-        task,
-        startDate,
-        frequency
+      ipcRenderer.invoke<ReturnType<typeof taskServices.getTasksByProjectId>>(
+        taskChannels.getTasksByProjectId,
+        ...args
+      ),
+    add: async (...args: Parameters<typeof taskServices.createTask>) =>
+      ipcRenderer.invoke<ReturnType<typeof taskServices.createTask>>(
+        taskChannels.createTask,
+        ...args
+      ),
+
+    update: async (...args: Parameters<typeof taskServices.updateTask>) =>
+      ipcRenderer.invoke<ReturnType<typeof taskServices.updateTask>>(
+        taskChannels.updateTask,
+        ...args
+      ),
+    delete: async (...args: Parameters<typeof taskServices.deleteTask>) =>
+      ipcRenderer.invoke<ReturnType<typeof taskServices.deleteTask>>(
+        taskChannels.deleteTask,
+        ...args
+      ),
+
+    addRecurring: async (
+      ...args: Parameters<typeof taskServices.addRecurringTask>
+    ) =>
+      ipcRenderer.invoke<ReturnType<typeof taskServices.addRecurringTask>>(
+        taskChannels.addRecurringTask,
+        ...args
       ),
   },
   systemInfo: {
     get: () => ipcRenderer.invoke('get:systemInfo') as Promise<SystemInfo>,
-  },
-  db: {
-    connect: (connection: Connection) =>
-      ipcRenderer.invoke('connect', connection) as Promise<Connection>,
-    disconnect: () => ipcRenderer.invoke('disconnect') as Promise<Connection>,
-    getConnection: () =>
-      ipcRenderer.invoke('get:connection') as Promise<Connection>,
-    getConnectionSync: () =>
-      ipcRenderer.invoke('get:connection:sync') as Promise<Connection>,
-    getConnectionSyncReply: () =>
-      ipcRenderer.invoke('get:connection:sync:reply') as Promise<Connection>,
-    getDatabases: () =>
-      ipcRendererWrappers.invoke<{ Database: string }[]>('get:databases'),
   },
 };
 contextBridge.exposeInMainWorld('electron', electronHandler);
