@@ -1,6 +1,4 @@
-import { Link, NavLink, Outlet } from 'react-router-dom';
-import { Logo } from '../logo/Logo';
-import { AuthMenu } from '@/routes/Auth/components/AuthMenu';
+import { Outlet } from 'react-router-dom';
 
 export const AppLayout = () => {
   return (

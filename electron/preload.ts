@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { ITask, TaskFrequency } from '@/types/task';
 import { IpcRendererEvent, contextBridge, ipcRenderer } from 'electron';
 import { SystemInfo } from './app/appListeners';
 import { userChannels } from './user/user.channels';

@@ -6,7 +6,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import React from 'react';
 
 export const RecurringTaskList = () => {
   return (

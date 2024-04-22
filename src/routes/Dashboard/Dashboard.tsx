@@ -1,7 +1,6 @@
 import React from 'react';
 import { ProjectsList } from './Projects/ProjectsList';
 import { IProject } from '@/types/projects';
-import { DashboardHeader } from './components/DashboardHeader';
 import { ITask } from '@/types/task';
 import { TasksList } from './Tasks/TasksList';
 import { NewProjectDialog } from './Projects/NewProject';
@@ -16,12 +15,7 @@ import {
 import { useShortcuts } from '@/hooks/useShortcuts';
 import { NewTaskDialog } from './Tasks/NewTask';
 import { Kdb } from '@/components/ui/kdb';
-import {
-  BoxIcon,
-  BoxModelIcon,
-  PlusIcon,
-  ValueNoneIcon,
-} from '@radix-ui/react-icons';
+import { PlusIcon } from '@radix-ui/react-icons';
 import { Logo } from '@/components/logo/Logo';
 import { Button } from '@/components/ui/button';
 import { AuthHeader } from './components/AuthHeader';

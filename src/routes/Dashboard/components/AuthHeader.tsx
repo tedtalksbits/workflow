@@ -1,6 +1,5 @@
 import { Logo } from '@/components/logo/Logo';
 import { AuthMenu } from '@/routes/Auth/components/AuthMenu';
-import React from 'react';
 import { NavLink } from 'react-router-dom';
 
 export const AuthHeader = () => {

@@ -165,6 +165,12 @@ export const taskController = {
     startDate: string,
     frequency: string
   ) => {
-    throw new Error('Not implemented');
+    console.log(
+      'addRecurringTask controller',
+      projectId,
+      task,
+      startDate,
+      frequency
+    );
   },
 };
